@@ -655,8 +655,8 @@ export function NotebookWorkspace({
               <span className={`font-semibold ${isLight ? 'text-emerald-700' : 'text-emerald-400'}`}>
                 ${expenses.totalCostUSD.toFixed(3)}
               </span>
-              <span className={`text-[10px] hidden md:inline opacity-70`}>
-                (~{expenses.totalCostMDL.toFixed(1)} MDL)
+              <span className={`text-[11px] font-mono opacity-80`}>
+                (~{expenses.totalCostMDL.toFixed(3)} MDL)
               </span>
             </button>
 
