@@ -70,6 +70,18 @@ export const INITIAL_NOTEBOOKS: Notebook[] = [
         content: 'Contestarea deciziei agentului constatator: depunerea contestației împotriva procesului-verbal în termen de 15 zile la organul din care face parte agentul sau direct în instanța de judecată (art. 448). Judecarea cauzei contravenționale în instanță (art. 452-463), recursul împotriva hotărârii judecătorești (art. 465-474). Punerea în executare a sancțiunilor contravenționale (Cartea a III-a).'
       },
       { 
+        id: 's-rcr-rm', 
+        title: 'Regulamentul Circulației Rutiere al Republicii Moldova (HG RM nr. 357/2009)', 
+        type: 'pdf',
+        content: 'Regulamentul Circulației Rutiere (RCR) aprobat prin HG nr. 357/2009: normele de conduită pe drumurile publice din Republica Moldova, semnalizarea rutieră, viteza legală admisibilă (în localități max 50 km/h, în afara localităților 90 km/h etc.), prioritatea de trecere, regulile privind depășirea, oprirea, staționarea și parcarea vehiculelor.'
+      },
+      { 
+        id: 's-lege-131-rm', 
+        title: 'Legea nr. 131/2007 privind siguranța traficului rutier din Republica Moldova', 
+        type: 'pdf',
+        content: 'Cadrul normativ privind siguranța traficului rutier în Republica Moldova: drepturile și obligațiile participanților la trafic, cerințele tehnice pentru vehicule, atribuțiile organelor de supraveghere și control ale RM, starea de ebrietate și testarea alcoolscopică oficială a conducătorilor auto conform standardelor RM.'
+      },
+      { 
         id: 's-politia-agenti', 
         title: 'Legea nr. 320/2012 cu privire la activitatea Poliției (competențe contravenționale)', 
         type: 'doc',
@@ -82,15 +94,16 @@ export const INITIAL_NOTEBOOKS: Notebook[] = [
         content: 'Practica judiciară a instanțelor din Republica Moldova: nulitatea absolută a procesului-verbal în cazul lipsei mențiunilor obligatorii prevăzute la art. 443 alin. (1) (lipsa datei, a identității agentului sau a faptei concrete imputate), interpretarea dubiilor în favoarea persoanei (prezumția de nevinovăție), aplicarea sancțiunii sub limita minimă prevăzută de lege (art. 36) în prezența circumstanțelor atenuante deosebite.'
       }
     ],
-    tags: ['Drept Contravențional', 'Codul Contravențional', 'Legislație RM', 'Procedură Contravențională', 'Proces-Verbal', 'Amenzi & Sancțiuni'],
+    tags: ['Drept Contravențional', 'Codul Contravențional', 'Legislație RM', 'Procedură Contravențională', 'Proces-Verbal', 'Amenzi & Sancțiuni', 'RCR RM'],
     audioOverviewStatus: 'generated',
     keyQuestions: [
-      'Care sunt cerințele obligatorii de întocmire a procesului-verbal cu privire la contravenție (art. 443) și când atrage nulitatea?',
+      'Care sunt cerințele obligatorii de întocmire a procesului-verbal cu privire la contravenție (art. 443) și când atrage nulitatea absolută?',
       'Care este termenul de prescripție pentru atragerea la răspundere contravențională conform art. 30 Cod contravențional?',
-      'Cum și în ce termen se contestă decizia sau procesul-verbal emis de agentul constatator?',
-      'Care sunt măsurile de asigurare a procedurii contravenționale și când poate fi aplicată reținerea?'
+      'Cum și în ce termen se contestă decizia sau procesul-verbal emis de agentul constatator (termen de 15 zile)?',
+      'Cum se aplică reducerea de 50% din amenda contravențională dacă plata se face în 3 zile lucrătoare (art. 34 alin. 3)?',
+      'Care sunt sancțiunile pentru încălcarea regulilor de circulație rutieră (RCR / art. 228-245 CC RM)?'
     ],
-    notes: 'Caiet dedicat legislației contravenționale a Republicii Moldova. Cuprinde Codul Contravențional (Legea nr. 218/2008), actele normative conexe, procedura de constatare, contestare și jurisprudența instanțelor din RM.',
+    notes: 'Caiet dedicat legislației contravenționale oficiale a Republicii Moldova. Cuprinde Codul Contravențional (Legea nr. 218/2008), Regulamentul circulației rutiere (HG nr. 357/2009), Legea nr. 131/2007, procedura de constatare, contestare și jurisprudența instanțelor din RM.',
     isFavorite: true,
     createdAt: '2026-09-10T15:00:00.000Z',
     updatedAt: '2026-09-10T15:00:00.000Z'
@@ -262,16 +275,23 @@ export function getStoredNotebooks(): Notebook[] {
         parsed.unshift(INITIAL_NOTEBOOKS[0]);
         modified = true;
       }
-      // Ensure seed-contraventional-rm is available right after seed-legal-rm
-      if (!parsed.some(nb => nb.id === 'seed-contraventional-rm')) {
-        const contraventional = INITIAL_NOTEBOOKS.find(nb => nb.id === 'seed-contraventional-rm');
-        if (contraventional) {
-          const insertIdx = parsed.findIndex(nb => nb.id === 'seed-legal-rm');
-          if (insertIdx !== -1) {
-            parsed.splice(insertIdx + 1, 0, contraventional);
-          } else {
-            parsed.unshift(contraventional);
-          }
+      // Ensure seed-contraventional-rm is available right after seed-legal-rm and has latest official sources
+      const contraventionalIdx = parsed.findIndex(nb => nb.id === 'seed-contraventional-rm');
+      const latestContraventional = INITIAL_NOTEBOOKS.find(nb => nb.id === 'seed-contraventional-rm');
+      if (contraventionalIdx === -1 && latestContraventional) {
+        const insertIdx = parsed.findIndex(nb => nb.id === 'seed-legal-rm');
+        if (insertIdx !== -1) {
+          parsed.splice(insertIdx + 1, 0, latestContraventional);
+        } else {
+          parsed.unshift(latestContraventional);
+        }
+        modified = true;
+      } else if (contraventionalIdx !== -1 && latestContraventional) {
+        if (parsed[contraventionalIdx].sources.length < latestContraventional.sources.length) {
+          parsed[contraventionalIdx].sources = latestContraventional.sources;
+          parsed[contraventionalIdx].keyQuestions = latestContraventional.keyQuestions;
+          parsed[contraventionalIdx].tags = latestContraventional.tags;
+          parsed[contraventionalIdx].notes = latestContraventional.notes;
           modified = true;
         }
       }

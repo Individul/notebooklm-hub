@@ -395,6 +395,37 @@ export function NotebookWorkspace({
             relevantArticles.map(a => formatLegalArticle(a)).join('\n\n---\n\n');
         }
 
+        const systemPromptRM = `Ești un asistent juridic de elită specializat exclusiv în legislația oficială a REPUBLICII MOLDOVA în NotebookLM.
+
+NORME FACTUALE STRICTE:
+1. CADRU JURIDIC EXCLUSIV ȘI SUVERAN RM:
+   - Folosești exclusiv actele normative oficiale ale Republicii Moldova (Parlamentul RM, Monitorul Oficial al RM, legis.md):
+     * Codul contravențional al Republicii Moldova nr. 218/2008 (cu modificările la zi)
+     * Codul penal al Republicii Moldova nr. 985/2002
+     * Codul de executare al RM nr. 443/2004
+     * Codul de procedură penală al RM nr. 122/2003
+     * Regulamentul circulației rutiere al RM (HG nr. 357/2009)
+     * Legea nr. 131/2007 privind siguranța traficului rutier din RM
+     * Legea nr. 320/2012 cu privire la activitatea Poliției și statutul polițistului
+   - ESTE STRICT ȘI CATEGORIC INTERZISĂ invocarea legislației din România (OG 2/2001, OUG 195/2002 etc.) sau a oricărui alt stat străin. Toate răspunsurile se bazează 100% pe legislația Republicii Moldova.
+2. DREPTUL CONTRAVENȚIONAL RM (Codul Contravențional nr. 218/2008):
+   - Unitatea convențională (u.c.) de amendă este de 50 de lei moldovenești (MDL) (art. 34 alin. 1).
+   - Achitarea a 50% din amendă dacă plata se face în termen de 3 zile lucrătoare (art. 34 alin. 3).
+   - Termenul general de prescripție a răspunderii contravenționale este de 1 an (art. 30).
+   - Contestarea procesului-verbal de constatare se depune în termen de 15 zile (art. 448).
+   - Mențiunile obligatorii și nulitatea procesului-verbal (art. 443, 445).
+3. CLASIFICAREA INFRACȚIUNILOR (art. 16 CP RM):
+   - Ușoare: max până la 2 ani.
+   - Mai puțin grave: max până la 5 ani.
+   - Grave: max până la 12 ani.
+   - Deosebit de grave: pedeapsa maximă DEPĂȘEȘTE 12 ani (ex: art. 151 alin. 4 - max 15 ani este DEOSEBIT DE GRAVĂ). Interzicere deplasare fără escortă conform art. 216 alin. 3 CE RM.
+   - Excepțional de grave: detențiune pe viață.
+4. FORMATUL RĂSPUNSULUI:
+   - Începe direct cu: ### ⚖️ [Titlul analizei sau articolului]
+   - Subtitlu: > **[Actul normativ oficial din Republica Moldova]**
+   - Delimitează clar punctele: **(1)**, **(2)** etc.
+   - Redactare clară și exhaustivă exclusiv în limba română.`;
+
         const candidateModels = [
           selectedModel,
           'gemini-3.5-flash-lite',
@@ -412,6 +443,9 @@ export function NotebookWorkspace({
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
+                systemInstruction: {
+                  parts: [{ text: systemPromptRM }]
+                },
                 contents: [{ parts: [{ text: fullPrompt }] }],
                 generationConfig: { temperature: 0.05, topP: 0.8 }
               })
@@ -1465,7 +1499,7 @@ export function NotebookWorkspace({
                 <div className="relative">
                   <input
                     type="text"
-                    placeholder="Caută în Codul Penal, Civil, Executare..."
+                    placeholder="Caută în Codul Penal, Contravențional, Executare..."
                     value={legalSearchQuery}
                     onChange={(e) => setLegalSearchQuery(e.target.value)}
                     className={`w-full rounded-xl border pl-8 pr-3 py-2 text-xs focus:outline-none focus:border-blue-500 ${
@@ -1508,9 +1542,9 @@ export function NotebookWorkspace({
                   ) : (
                     <div className="text-center text-slate-400 py-8 px-4 text-xs">
                       <Scale className="w-8 h-8 mx-auto mb-2 opacity-40 text-blue-500" />
-                      <p className="font-semibold">Căutare Rapidă în Legislație</p>
+                      <p className="font-semibold">Căutare Rapidă în Legislație RM</p>
                       <p className="text-[11px] mt-1 text-slate-500">
-                        Scrie numărul unui articol sau un termen (ex: &quot;liberare conditionata&quot;, &quot;art 91&quot;, &quot;escorta&quot;) pentru a cita instant.
+                        Scrie un articol sau termen (ex: &quot;proces-verbal&quot;, &quot;art 443&quot;, &quot;prescriptie&quot;, &quot;art 91&quot;, &quot;art 233&quot;) pentru a consulta sau insera instant.
                       </p>
                     </div>
                   )}

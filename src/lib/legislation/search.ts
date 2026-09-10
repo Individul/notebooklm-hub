@@ -2,7 +2,7 @@ import rmCodesData from './rm-codes.json';
 
 export interface LegalArticle {
   code: string;
-  abbr: 'CP' | 'CE' | 'CPP';
+  abbr: 'CP' | 'CE' | 'CPP' | 'CC';
   number: string;
   title: string;
   text: string;
@@ -30,20 +30,36 @@ export function normalizeText(text: string): string {
 }
 
 /**
- * Searches for a specific legal article in RM Codes (CP, CE, CPP) based on user prompt.
+ * Searches for a specific legal article in RM Codes (CP, CE, CPP, CC) based on user prompt.
  */
 export function findArticleByPrompt(prompt: string): LegalArticle | null {
   const norm = normalizeText(prompt);
   const articles = getLegislationArticles();
   
-  // Match patterns like: "art. 96", "articolul 92", "art 91", "articol 205", "art. 96^1", "art 96-1"
+  // Match patterns like: "art. 96", "articolul 92", "art 91", "articol 205", "art. 96^1", "art 96-1", "art. 443"
   const match = prompt.match(/(?:art|articolul|articol)\.?\s*([0-9]+(?:\^?[0-9]*))/i);
   if (!match) return null;
   const num = match[1].replace('-', '^');
 
   // Determine code preference if specified in prompt
-  let preferredAbbr: 'CP' | 'CE' | 'CPP' | null = null;
+  let preferredAbbr: 'CP' | 'CE' | 'CPP' | 'CC' | null = null;
   if (
+    norm.includes('contravention') ||
+    norm.includes('contraventie') ||
+    norm.includes('contraventi') ||
+    norm.includes('cc rm') ||
+    norm.includes('proces verbal') ||
+    norm.includes('agent constatator') ||
+    norm.includes('puncte de penalizare') ||
+    norm.includes('circulatiei rutiere') ||
+    norm.includes('rcr') ||
+    norm.includes('amenda contraventionala') ||
+    norm.includes('sanctiune contraventionala') ||
+    norm.includes('arest contraventional') ||
+    norm.includes('nulitatea procesului')
+  ) {
+    preferredAbbr = 'CC';
+  } else if (
     norm.includes('executare') || 
     norm.includes('ce rm') || 
     norm.includes('penitenciar') || 
@@ -72,14 +88,16 @@ export function findArticleByPrompt(prompt: string): LegalArticle | null {
     if (found) return found;
   }
 
-  // 2. Prioritize Codul Penal (CP) by default, then CE, then CPP
+  // 2. Check prioritized matches
+  const ccMatch = articles.find(a => a.abbr === 'CC' && a.number === num);
   const cpMatch = articles.find(a => a.abbr === 'CP' && a.number === num);
-  if (cpMatch) return cpMatch;
-
   const ceMatch = articles.find(a => a.abbr === 'CE' && a.number === num);
-  if (ceMatch) return ceMatch;
-
   const cppMatch = articles.find(a => a.abbr === 'CPP' && a.number === num);
+
+  if (cpMatch && !preferredAbbr) return cpMatch;
+  if (ccMatch) return ccMatch;
+  if (cpMatch) return cpMatch;
+  if (ceMatch) return ceMatch;
   if (cppMatch) return cppMatch;
 
   return null;
@@ -97,23 +115,53 @@ export function findAllRelevantArticles(prompt: string): LegalArticle[] {
   const artMatches = [...prompt.matchAll(/(?:art|articolul|articol)\.?\s*([0-9]+(?:\^?[0-9]*))/gi)];
   for (const m of artMatches) {
     const num = m[1].replace('-', '^');
+    const isCC = norm.includes('contravent') || norm.includes('cc rm') || norm.includes('proces verbal') || norm.includes('agent constatator') || norm.includes('amenda contraventionala') || norm.includes('puncte de penalizare');
     const isCE = norm.includes('executare') || norm.includes('ce rm') || norm.includes('penitenciar');
     const isCPP = norm.includes('procedura') || norm.includes('cpp');
     
     let art: LegalArticle | undefined;
-    if (isCE) art = articles.find(a => a.abbr === 'CE' && a.number === num);
+    if (isCC) art = articles.find(a => a.abbr === 'CC' && a.number === num);
+    else if (isCE) art = articles.find(a => a.abbr === 'CE' && a.number === num);
     else if (isCPP) art = articles.find(a => a.abbr === 'CPP' && a.number === num);
     else art = articles.find(a => a.abbr === 'CP' && a.number === num);
 
     if (!art) {
-      art = articles.find(a => a.number === num);
+      art = articles.find(a => a.abbr === 'CC' && a.number === num) || articles.find(a => a.number === num);
     }
     if (art && !results.some(r => r.abbr === art!.abbr && r.number === art!.number)) {
       results.push(art);
     }
   }
 
-  // 2. Cross-reference: Deplasare fără escortă / regim (Art. 216 CE)
+  // 2. Cross-reference: Termenul de prescripție a răspunderii contravenționale (Art. 30 CC)
+  if (norm.includes('prescriptie') && (norm.includes('contravent') || norm.includes('proces verbal') || norm.includes('amenda'))) {
+    const cc30 = articles.find(a => a.abbr === 'CC' && a.number === '30');
+    if (cc30 && !results.some(r => r.abbr === 'CC' && r.number === '30')) {
+      results.push(cc30);
+    }
+  }
+
+  // 3. Cross-reference: Întocmirea și nulitatea procesului-verbal contravențional (Art. 443 CC)
+  if (norm.includes('proces verbal') || norm.includes('procesul verbal') || norm.includes('nulitate') || norm.includes('contestat')) {
+    const cc443 = articles.find(a => a.abbr === 'CC' && a.number === '443');
+    if (cc443 && !results.some(r => r.abbr === 'CC' && r.number === '443')) {
+      results.push(cc443);
+    }
+    const cc448 = articles.find(a => a.abbr === 'CC' && a.number === '448');
+    if (cc448 && !results.some(r => r.abbr === 'CC' && r.number === '448')) {
+      results.push(cc448);
+    }
+  }
+
+  // 4. Cross-reference: Conducerea vehiculului în stare de ebrietate (Art. 233 CC)
+  if (norm.includes('ebrietate') || norm.includes('alcool') || norm.includes('sub influenta')) {
+    const cc233 = articles.find(a => a.abbr === 'CC' && a.number === '233');
+    if (cc233 && !results.some(r => r.abbr === 'CC' && r.number === '233')) {
+      results.push(cc233);
+    }
+  }
+
+  // 5. Cross-reference: Deplasare fără escortă / regim (Art. 216 CE)
   if (norm.includes('escorta') || norm.includes('fara escorta') || norm.includes('insoțire') || norm.includes('insoitire')) {
     const ce216 = articles.find(a => a.abbr === 'CE' && a.number === '216');
     if (ce216 && !results.some(r => r.abbr === 'CE' && r.number === '216')) {
@@ -121,7 +169,7 @@ export function findAllRelevantArticles(prompt: string): LegalArticle[] {
     }
   }
 
-  // 3. Cross-reference: Clasificarea infracțiunilor (Art. 16 CP)
+  // 6. Cross-reference: Clasificarea infracțiunilor (Art. 16 CP)
   // Needed whenever an offense penalty, escort, classification, or early release is questioned
   if (
     norm.includes('clasific') || 
@@ -137,7 +185,7 @@ export function findAllRelevantArticles(prompt: string): LegalArticle[] {
     }
   }
 
-  // 4. Cross-reference: Liberare condiționată (Art. 91 CP + Art. 266-267 CE)
+  // 7. Cross-reference: Liberare condiționată (Art. 91 CP + Art. 266-267 CE)
   if (norm.includes('liberare conditionata') || norm.includes('art. 91') || norm.includes('articolul 91')) {
     const cp91 = articles.find(a => a.abbr === 'CP' && a.number === '91');
     if (cp91 && !results.some(r => r.abbr === 'CP' && r.number === '91')) results.push(cp91);
