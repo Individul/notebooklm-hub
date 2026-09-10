@@ -45,18 +45,45 @@ export function ApiKeyModal({ isOpen, onClose, onKeySaved }: ApiKeyModalProps) {
     setStatusMsg('Se verifică conexiunea cu serverele Google Gemini...');
 
     try {
-      const res = await fetch('/api/gemini', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          prompt: 'Răspunde doar cu cuvântul OK.',
-          mode: 'chat',
-          apiKey: trimmed,
-        }),
-      });
+      let isSuccess = false;
 
-      const data = await res.json();
-      if (res.ok && data.source === 'gemini-api') {
+      // 1. Încercare prin API route intern (dacă serverul este activ)
+      try {
+        const res = await fetch('/api/gemini', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            prompt: 'Răspunde doar cu cuvântul OK.',
+            mode: 'chat',
+            apiKey: trimmed,
+          }),
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data.source === 'gemini-api' || data.reply) {
+            isSuccess = true;
+          }
+        }
+      } catch (e) {
+        // Continuă cu verificarea directă pe client
+      }
+
+      // 2. Verificare directă cu serverele Google (esențial pe Cloudflare Pages static)
+      if (!isSuccess) {
+        const directRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(trimmed)}`);
+        if (directRes.ok) {
+          isSuccess = true;
+        } else {
+          if (directRes.status === 400 || directRes.status === 401 || directRes.status === 403) {
+            setStatus('invalid');
+            setStatusMsg('Cheia nu este validă pentru Google Gemini. Cheia oficială se creează în Google AI Studio și începe de regulă cu "AIzaSy...".');
+            return;
+          }
+        }
+      }
+
+      if (isSuccess) {
         localStorage.setItem('gemini_user_api_key', trimmed);
         onKeySaved(trimmed);
         setStatus('valid');
@@ -66,11 +93,11 @@ export function ApiKeyModal({ isOpen, onClose, onKeySaved }: ApiKeyModalProps) {
         }, 1500);
       } else {
         setStatus('invalid');
-        setStatusMsg('Cheia introdusă nu a fost acceptată de Google. Verificați dacă este copiată corect din AI Studio.');
+        setStatusMsg('Cheia nu a putut fi validată de Google Gemini. Verificați dacă ați copiat-o corect din aistudio.google.com.');
       }
     } catch (err: any) {
       setStatus('invalid');
-      setStatusMsg('Eroare de conexiune la verificarea cheii.');
+      setStatusMsg('Eroare de rețea la contactarea Google Gemini API.');
     }
   };
 
