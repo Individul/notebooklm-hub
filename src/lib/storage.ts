@@ -47,7 +47,7 @@ export const INITIAL_NOTEBOOKS: Notebook[] = [
     id: 'seed-contraventional-rm',
     notebookLmId: 'cc218-legal-contraventional-rm',
     title: 'Legislația contravențională a Republicii Moldova',
-    description: 'Cadrul juridic contravențional consolidat al Republicii Moldova: Codul Contravențional (Legea nr. 218/2008), procedura contravențională, procesul-verbal de constatare, competența agenților constatatori, căile de atac și executarea sancțiunilor contravenționale.',
+    description: 'Cadrul juridic contravențional consolidat al Republicii Moldova axat pe Codul Contravențional (Legea nr. 218/2008) și Codul de Executare (Legea nr. 443/2004): răspunderea contravențională, sancțiunile, procedura contravențională, procesul-verbal și punerea în executare a hotărârilor contravenționale.',
     category: 'Juridic & Legislație RM',
     url: 'https://notebooklm.google.com/',
     sources: [
@@ -55,55 +55,25 @@ export const INITIAL_NOTEBOOKS: Notebook[] = [
         id: 's-cc-rm', 
         title: 'Codul Contravențional al Republicii Moldova (Legea nr. 218/2008, actualizat)', 
         type: 'pdf',
-        content: 'Codul Contravențional al RM (Legea nr. 218/2008): Partea Generală și Partea Specială. Reglementează temeiurile răspunderii contravenționale, cauzele care înlătură răspunderea (starea de extremă necesitate, legitima apărare, cazul fortuit), sancțiunile contravenționale (avertismentul, amenda contravențională, munca neremunerată în folosul comunității, arestul contravențional, privarea de dreptul de a desfășura o activitate sau de a deține funcții, punctele de penalizare), individualizarea și aplicarea sancțiunii, termenul de prescripție a răspunderii contravenționale (art. 30).'
+        content: 'Codul Contravențional al Republicii Moldova (Legea nr. 218/2008): Partea Generală și Partea Specială. Reglementează principiile și temeiurile răspunderii contravenționale, cauzele care înlătură răspunderea (art. 26), sancțiunile contravenționale (avertismentul, amenda contravențională de 50 MDL/u.c., privarea de dreptul de a desfășura o activitate, munca neremunerată în folosul comunității, arestul contravențional, punctele de penalizare), termenul de prescripție a răspunderii contravenționale de 1 an (art. 30), procedura contravențională (art. 374-474), cerințele și nulitatea procesului-verbal (art. 443, 445) și contestarea deciziei (art. 448).'
       },
       { 
-        id: 's-proc-contraventionala', 
-        title: 'Procedura Contravențională (Cartea a II-a a Codului Contravențional)', 
+        id: 's-ce-rm', 
+        title: 'Codul de Executare al Republicii Moldova (Legea nr. 443/2004, actualizat)', 
         type: 'pdf',
-        content: 'Procedura contravențională în RM: Art. 374-474 Cod contravențional. Principiile procesului contravențional, drepturile și obligațiile persoanei în privința căreia a fost pornit procesul (art. 384), dreptul la apărare, asistența juridică garantată de stat, măsurile de asigurare a procedurii (reținerea, examinarea corporală, ridicarea bunurilor), întocmirea procesului-verbal cu privire la contravenție (art. 443 - cerințe de fond și formă, cauze de nulitate absolută).'
-      },
-      { 
-        id: 's-cai-atac-executare', 
-        title: 'Căile de Atac și Executarea Sancțiunilor Contravenționale', 
-        type: 'doc',
-        content: 'Contestarea deciziei agentului constatator: depunerea contestației împotriva procesului-verbal în termen de 15 zile la organul din care face parte agentul sau direct în instanța de judecată (art. 448). Judecarea cauzei contravenționale în instanță (art. 452-463), recursul împotriva hotărârii judecătorești (art. 465-474). Punerea în executare a sancțiunilor contravenționale (Cartea a III-a).'
-      },
-      { 
-        id: 's-rcr-rm', 
-        title: 'Regulamentul Circulației Rutiere al Republicii Moldova (HG RM nr. 357/2009)', 
-        type: 'pdf',
-        content: 'Regulamentul Circulației Rutiere (RCR) aprobat prin HG nr. 357/2009: normele de conduită pe drumurile publice din Republica Moldova, semnalizarea rutieră, viteza legală admisibilă (în localități max 50 km/h, în afara localităților 90 km/h etc.), prioritatea de trecere, regulile privind depășirea, oprirea, staționarea și parcarea vehiculelor.'
-      },
-      { 
-        id: 's-lege-131-rm', 
-        title: 'Legea nr. 131/2007 privind siguranța traficului rutier din Republica Moldova', 
-        type: 'pdf',
-        content: 'Cadrul normativ privind siguranța traficului rutier în Republica Moldova: drepturile și obligațiile participanților la trafic, cerințele tehnice pentru vehicule, atribuțiile organelor de supraveghere și control ale RM, starea de ebrietate și testarea alcoolscopică oficială a conducătorilor auto conform standardelor RM.'
-      },
-      { 
-        id: 's-politia-agenti', 
-        title: 'Legea nr. 320/2012 cu privire la activitatea Poliției (competențe contravenționale)', 
-        type: 'doc',
-        content: 'Competențele organelor de poliție în calitatea lor de agenți constatatori conform art. 400 Cod contravențional: atribuțiile de constatare a contravențiilor contra ordinii publice, securității circulației rutiere, drepturilor de proprietate; limitele exercitării forței fizice și a mijloacelor speciale în cadrul procedurii contravenționale.'
-      },
-      { 
-        id: 's-csj-contraventional', 
-        title: 'Jurisprudența Curții Supreme de Justiție a RM în materie contravențională', 
-        type: 'text',
-        content: 'Practica judiciară a instanțelor din Republica Moldova: nulitatea absolută a procesului-verbal în cazul lipsei mențiunilor obligatorii prevăzute la art. 443 alin. (1) (lipsa datei, a identității agentului sau a faptei concrete imputate), interpretarea dubiilor în favoarea persoanei (prezumția de nevinovăție), aplicarea sancțiunii sub limita minimă prevăzută de lege (art. 36) în prezența circumstanțelor atenuante deosebite.'
+        content: 'Codul de Executare al Republicii Moldova (Legea nr. 443/2004): Titlul III - Executarea sancțiunilor contravenționale. Reglementează punerea în executare a deciziilor și hotărârilor judecătorești pe cauze contravenționale: procedura de executare silită a amenzii contravenționale, a muncii neremunerate în folosul comunității, a arestului contravențional și a sancțiunilor complementare (privarea de dreptul de a conduce vehicule sau de a deține anumite funcții), competența executorului judecătoresc și a organelor de executare abilitate din Republica Moldova.'
       }
     ],
-    tags: ['Drept Contravențional', 'Codul Contravențional', 'Legislație RM', 'Procedură Contravențională', 'Proces-Verbal', 'Amenzi & Sancțiuni', 'RCR RM'],
+    tags: ['Drept Contravențional', 'Codul Contravențional', 'Codul de Executare', 'Legislație RM', 'Procedură Contravențională', 'Executarea Sancțiunilor'],
     audioOverviewStatus: 'generated',
     keyQuestions: [
-      'Care sunt cerințele obligatorii de întocmire a procesului-verbal cu privire la contravenție (art. 443) și când atrage nulitatea absolută?',
-      'Care este termenul de prescripție pentru atragerea la răspundere contravențională conform art. 30 Cod contravențional?',
-      'Cum și în ce termen se contestă decizia sau procesul-verbal emis de agentul constatator (termen de 15 zile)?',
-      'Cum se aplică reducerea de 50% din amenda contravențională dacă plata se face în 3 zile lucrătoare (art. 34 alin. 3)?',
-      'Care sunt sancțiunile pentru încălcarea regulilor de circulație rutieră (RCR / art. 228-245 CC RM)?'
+      'Care sunt cerințele obligatorii de întocmire a procesului-verbal cu privire la contravenție (art. 443 CC RM) și când intervine nulitatea absolută?',
+      'Care este termenul de prescripție a răspunderii contravenționale conform art. 30 Cod contravențional (1 an)?',
+      'Cum și în ce termen se contestă decizia sau procesul-verbal emis de agentul constatator (termen de 15 zile conform art. 448 CC RM)?',
+      'Cum se pun în executare sancțiunile contravenționale conform Codului de Executare al RM (amenda, munca comunitară, arestul)?',
+      'Cum se aplică reducerea de 50% din amenda contravențională dacă plata se face în termen de 3 zile lucrătoare (art. 34 alin. 3 CC RM)?'
     ],
-    notes: 'Caiet dedicat legislației contravenționale oficiale a Republicii Moldova. Cuprinde Codul Contravențional (Legea nr. 218/2008), Regulamentul circulației rutiere (HG nr. 357/2009), Legea nr. 131/2007, procedura de constatare, contestare și jurisprudența instanțelor din RM.',
+    notes: 'Caiet dedicat exclusiv celor două acte fundamentale ale Republicii Moldova în materie: Codul Contravențional (Legea nr. 218/2008) și Codul de Executare (Legea nr. 443/2004).',
     isFavorite: true,
     createdAt: '2026-09-10T15:00:00.000Z',
     updatedAt: '2026-09-10T15:00:00.000Z'
@@ -287,11 +257,18 @@ export function getStoredNotebooks(): Notebook[] {
         }
         modified = true;
       } else if (contraventionalIdx !== -1 && latestContraventional) {
-        if (parsed[contraventionalIdx].sources.length < latestContraventional.sources.length) {
+        // Enforce strictly the 2 requested official sources: Codul Contravențional & Codul de Executare
+        const curSources = parsed[contraventionalIdx].sources || [];
+        const isExactTwo = curSources.length === 2 && 
+          curSources.some((s: { id: string }) => s.id === 's-cc-rm') && 
+          curSources.some((s: { id: string }) => s.id === 's-ce-rm');
+
+        if (!isExactTwo) {
           parsed[contraventionalIdx].sources = latestContraventional.sources;
           parsed[contraventionalIdx].keyQuestions = latestContraventional.keyQuestions;
           parsed[contraventionalIdx].tags = latestContraventional.tags;
           parsed[contraventionalIdx].notes = latestContraventional.notes;
+          parsed[contraventionalIdx].description = latestContraventional.description;
           modified = true;
         }
       }
