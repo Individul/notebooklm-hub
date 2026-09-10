@@ -44,6 +44,58 @@ export const INITIAL_NOTEBOOKS: Notebook[] = [
     updatedAt: '2026-09-10T12:00:00.000Z'
   },
   {
+    id: 'seed-contraventional-rm',
+    notebookLmId: 'cc218-legal-contraventional-rm',
+    title: 'Legislația contravențională a Republicii Moldova',
+    description: 'Cadrul juridic contravențional consolidat al Republicii Moldova: Codul Contravențional (Legea nr. 218/2008), procedura contravențională, procesul-verbal de constatare, competența agenților constatatori, căile de atac și executarea sancțiunilor contravenționale.',
+    category: 'Juridic & Legislație RM',
+    url: 'https://notebooklm.google.com/',
+    sources: [
+      { 
+        id: 's-cc-rm', 
+        title: 'Codul Contravențional al Republicii Moldova (Legea nr. 218/2008, actualizat)', 
+        type: 'pdf',
+        content: 'Codul Contravențional al RM (Legea nr. 218/2008): Partea Generală și Partea Specială. Reglementează temeiurile răspunderii contravenționale, cauzele care înlătură răspunderea (starea de extremă necesitate, legitima apărare, cazul fortuit), sancțiunile contravenționale (avertismentul, amenda contravențională, munca neremunerată în folosul comunității, arestul contravențional, privarea de dreptul de a desfășura o activitate sau de a deține funcții, punctele de penalizare), individualizarea și aplicarea sancțiunii, termenul de prescripție a răspunderii contravenționale (art. 30).'
+      },
+      { 
+        id: 's-proc-contraventionala', 
+        title: 'Procedura Contravențională (Cartea a II-a a Codului Contravențional)', 
+        type: 'pdf',
+        content: 'Procedura contravențională în RM: Art. 374-474 Cod contravențional. Principiile procesului contravențional, drepturile și obligațiile persoanei în privința căreia a fost pornit procesul (art. 384), dreptul la apărare, asistența juridică garantată de stat, măsurile de asigurare a procedurii (reținerea, examinarea corporală, ridicarea bunurilor), întocmirea procesului-verbal cu privire la contravenție (art. 443 - cerințe de fond și formă, cauze de nulitate absolută).'
+      },
+      { 
+        id: 's-cai-atac-executare', 
+        title: 'Căile de Atac și Executarea Sancțiunilor Contravenționale', 
+        type: 'doc',
+        content: 'Contestarea deciziei agentului constatator: depunerea contestației împotriva procesului-verbal în termen de 15 zile la organul din care face parte agentul sau direct în instanța de judecată (art. 448). Judecarea cauzei contravenționale în instanță (art. 452-463), recursul împotriva hotărârii judecătorești (art. 465-474). Punerea în executare a sancțiunilor contravenționale (Cartea a III-a).'
+      },
+      { 
+        id: 's-politia-agenti', 
+        title: 'Legea nr. 320/2012 cu privire la activitatea Poliției (competențe contravenționale)', 
+        type: 'doc',
+        content: 'Competențele organelor de poliție în calitatea lor de agenți constatatori conform art. 400 Cod contravențional: atribuțiile de constatare a contravențiilor contra ordinii publice, securității circulației rutiere, drepturilor de proprietate; limitele exercitării forței fizice și a mijloacelor speciale în cadrul procedurii contravenționale.'
+      },
+      { 
+        id: 's-csj-contraventional', 
+        title: 'Jurisprudența Curții Supreme de Justiție a RM în materie contravențională', 
+        type: 'text',
+        content: 'Practica judiciară a instanțelor din Republica Moldova: nulitatea absolută a procesului-verbal în cazul lipsei mențiunilor obligatorii prevăzute la art. 443 alin. (1) (lipsa datei, a identității agentului sau a faptei concrete imputate), interpretarea dubiilor în favoarea persoanei (prezumția de nevinovăție), aplicarea sancțiunii sub limita minimă prevăzută de lege (art. 36) în prezența circumstanțelor atenuante deosebite.'
+      }
+    ],
+    tags: ['Drept Contravențional', 'Codul Contravențional', 'Legislație RM', 'Procedură Contravențională', 'Proces-Verbal', 'Amenzi & Sancțiuni'],
+    audioOverviewStatus: 'generated',
+    keyQuestions: [
+      'Care sunt cerințele obligatorii de întocmire a procesului-verbal cu privire la contravenție (art. 443) și când atrage nulitatea?',
+      'Care este termenul de prescripție pentru atragerea la răspundere contravențională conform art. 30 Cod contravențional?',
+      'Cum și în ce termen se contestă decizia sau procesul-verbal emis de agentul constatator?',
+      'Care sunt măsurile de asigurare a procedurii contravenționale și când poate fi aplicată reținerea?'
+    ],
+    notes: 'Caiet dedicat legislației contravenționale a Republicii Moldova. Cuprinde Codul Contravențional (Legea nr. 218/2008), actele normative conexe, procedura de constatare, contestare și jurisprudența instanțelor din RM.',
+    isFavorite: true,
+    createdAt: '2026-09-10T15:00:00.000Z',
+    updatedAt: '2026-09-10T15:00:00.000Z'
+  },
+  {
     id: 'seed-1',
     notebookLmId: '2b34a66e-399d-47be-b21a-281b37b6cfdb',
     title: 'Cercetare LLM-uri & Tehnici RAG Avansate',
@@ -204,11 +256,27 @@ export function getStoredNotebooks(): Notebook[] {
     }
     const parsed = JSON.parse(raw);
     if (Array.isArray(parsed) && parsed.length > 0) {
+      let modified = false;
       // Ensure seed-legal-rm is available at the top if not present
       if (!parsed.some(nb => nb.id === 'seed-legal-rm')) {
-        const merged = [INITIAL_NOTEBOOKS[0], ...parsed];
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
-        return merged;
+        parsed.unshift(INITIAL_NOTEBOOKS[0]);
+        modified = true;
+      }
+      // Ensure seed-contraventional-rm is available right after seed-legal-rm
+      if (!parsed.some(nb => nb.id === 'seed-contraventional-rm')) {
+        const contraventional = INITIAL_NOTEBOOKS.find(nb => nb.id === 'seed-contraventional-rm');
+        if (contraventional) {
+          const insertIdx = parsed.findIndex(nb => nb.id === 'seed-legal-rm');
+          if (insertIdx !== -1) {
+            parsed.splice(insertIdx + 1, 0, contraventional);
+          } else {
+            parsed.unshift(contraventional);
+          }
+          modified = true;
+        }
+      }
+      if (modified) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
       }
       return parsed;
     }
