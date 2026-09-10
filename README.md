@@ -1,36 +1,52 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# NotebookLM Hub (Companion Google Gemini & Legislație RM)
 
-## Getting Started
+Un companion avansat și organizator pentru notebook-uri **Google NotebookLM** și interogări bazate pe modelele **Google Gemini**, cu suport specializat pentru analiza legislației și documentelor juridice.
 
-First, run the development server:
+🌐 **Demo Live:** [https://notebooklm-hub-cy4.pages.dev/](https://notebooklm-hub-cy4.pages.dev/)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+---
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## ✨ Funcționalități Principale
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- ⚡ **Model Implicit Gemini 3.5 Flash-Lite:** Configurat nativ pentru cel mai bun raport viteză / costuri (\$0.075 per 1M tokeni de prompt). Suport suplimentar pentru Gemini 1.5 Pro, 3.5 Flash, 2.0 Flash și 1.5 Flash.
+- 💰 **Monitorizare Cheltuieli API în Timp Real:** Insignă live în bara superioară care calculează costul fiecărei interogări în USD și Lei moldovenești (~MDL), plus numărul de tokeni consumați și istoric detaliat în popover.
+- ☀️ **Varianta Albă & Mod Întunecat (Theme Toggle):** Interfață luminoasă implicită, cu contrast înalt pentru lectura relaxată a documentelor lungi, plus buton instant de comutare Sun/Moon.
+- 💬 **Sesiuni Multiple de Chat & Arhivare Automată:** Butonul `+ Chat Nou` arhivează sesiunea curentă pentru a preveni confuzia asistentului la schimbarea subiectului, cu istoric complet accesibil în fereastra dedicată.
+- ⚖️ **Motor de Căutare Juridică RM integrat:** Caută și citează instantaneu articole din Codul Penal, Codul Civil, Codul Muncii și alte legi ale Republicii Moldova direct pe marginea rețelei (Edge / in-memory).
+- 🎙️ **Audio Overview (Podcast Studio):** Generare și redare a discuțiilor audio sintetizate în două voci pentru fiecare notebook.
+- 📁 **Management Surse & Fișiere Locale:** Încărcare de fișiere PDF, TXT, DOC direct din calculator și procesare securizată în browser.
+- 🚀 **Zero Server Backend (Edge Ready):** Compilat complet ca export static și găzduit global pe Cloudflare Pages.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 🛠️ Tehnologii Utilizate
 
-To learn more about Next.js, take a look at the following resources:
+- **Framework:** Next.js 16.3 (App Router, Turbopack, Static Export)
+- **UI & Styling:** React 19, Tailwind CSS v4, Lucide React
+- **AI Integration:** Google Gemini API (REST SDK)
+- **Deployment:** Cloudflare Pages (Wrangler v4)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🚀 Rulare Locală
 
-## Deploy on Vercel
+1. **Instalare dependențe:**
+   ```bash
+   npm install
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+2. **Pornire server de dezvoltare:**
+   ```bash
+   npm run dev
+   ```
+   Deschideți [http://localhost:3000](http://localhost:3000) în browser.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+3. **Construire export static:**
+   ```bash
+   npm run build
+   ```
+
+4. **Publicare pe Cloudflare Pages:**
+   ```bash
+   npx wrangler pages deploy out --project-name=notebooklm-hub
+   ```

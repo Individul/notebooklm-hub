@@ -1,0 +1,356 @@
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import { 
+  Sparkles, 
+  X, 
+  Send, 
+  Key, 
+  Copy, 
+  Check, 
+  BookOpen, 
+  HelpCircle, 
+  FilePlus, 
+  RefreshCw,
+  Info
+} from 'lucide-react';
+import { Notebook } from '@/lib/types';
+import { FormattedMessage } from './FormattedMessage';
+import { cleanDisplayReply } from '@/lib/cleaner';
+
+interface GeminiCopilotDrawerProps {
+  isOpen: boolean;
+  onClose: () => void;
+  notebooks: Notebook[];
+  onUpdateNotebookNotes?: (notebookId: string, additionalNotes: string) => void;
+}
+
+export function GeminiCopilotDrawer({
+  isOpen,
+  onClose,
+  notebooks,
+  onUpdateNotebookNotes,
+}: GeminiCopilotDrawerProps) {
+  const [apiKey, setApiKey] = useState('');
+  const [showKeyInput, setShowKeyInput] = useState(false);
+  const [selectedNotebookId, setSelectedNotebookId] = useState<string>('');
+  const [prompt, setPrompt] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+
+  interface Message {
+    role: 'user' | 'assistant';
+    content: string;
+    source?: string;
+  }
+
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      role: 'assistant',
+      content: `Salut! Sunt asistentul tău **Gemini pentru NotebookLM** 🚀. 
+
+Te pot ajuta să:
+- Formulezi **întrebări analitice** excelente pentru sursele tale
+- Descoperi **surse noi** (PDF-uri, articole, video-uri) pe care să le încarci în Google NotebookLM
+- Creezi rezumate și planuri de studiu
+
+Alege un notebook de mai jos sau scrie-mi direct!`,
+    },
+  ]);
+
+  useEffect(() => {
+    const savedKey = localStorage.getItem('gemini_user_api_key') || '';
+    setApiKey(savedKey);
+  }, []);
+
+  const handleSaveApiKey = (key: string) => {
+    setApiKey(key);
+    localStorage.setItem('gemini_user_api_key', key);
+    setShowKeyInput(false);
+  };
+
+  const handleSend = async (customPrompt?: string, mode?: 'generate_questions' | 'suggest_sources' | 'summarize' | 'chat') => {
+    const textToSend = customPrompt || prompt;
+    if (!textToSend.trim()) return;
+
+    const userMsg: Message = { role: 'user', content: textToSend };
+    setMessages((prev) => [...prev, userMsg]);
+    if (!customPrompt) setPrompt('');
+    setLoading(true);
+
+    // Find context from selected notebook if any
+    let contextStr = '';
+    if (selectedNotebookId) {
+      const selected = notebooks.find(n => n.id === selectedNotebookId);
+      if (selected) {
+        const sourcesText = selected.sources?.map(s => {
+          let str = `[${s.type.toUpperCase()}] ${s.title}`;
+          if (s.content) str += `:\n${s.content}`;
+          else if (s.url) str += ` (Link: ${s.url})`;
+          return str;
+        }).join('\n\n---\n\n') || 'Niciuna';
+        contextStr = `Notebook: "${selected.title}"\nDescriere: ${selected.description}\nCategorie: ${selected.category}\nSurse:\n${sourcesText}\n\nNotițe curente:\n${selected.notes || 'Niciuna'}`;
+      }
+    }
+
+    try {
+      const res = await fetch('/api/gemini', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: textToSend,
+          mode: mode || 'chat',
+          context: contextStr,
+          apiKey: apiKey.trim() || undefined,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.reply) {
+        const cleanReply = cleanDisplayReply(data.reply);
+        setMessages((prev) => [
+          ...prev,
+          { role: 'assistant', content: cleanReply, source: data.source },
+        ]);
+      } else {
+        setMessages((prev) => [
+          ...prev,
+          { role: 'assistant', content: 'Ne pare rău, a apărut o eroare la procesarea cererii.' },
+        ]);
+      }
+    } catch (err) {
+      setMessages((prev) => [
+        ...prev,
+        { role: 'assistant', content: 'Eroare de rețea sau comunicare cu serverul.' },
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const copyToClipboard = (text: string, index: number) => {
+    navigator.clipboard.writeText(text);
+    setCopiedIndex(index);
+    setTimeout(() => setCopiedIndex(null), 2000);
+  };
+
+  if (!isOpen) return null;
+
+  const currentSelectedNotebook = notebooks.find(n => n.id === selectedNotebookId);
+
+  return (
+    <div className="fixed inset-0 z-50 flex justify-end bg-slate-900/40 backdrop-blur-xs transition-opacity">
+      <div className="flex h-full w-full max-w-lg flex-col border-l border-slate-200 bg-white shadow-2xl dark:border-slate-800 dark:bg-slate-900">
+        
+        {/* Drawer Header */}
+        <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4 dark:border-slate-800">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-tr from-purple-600 to-indigo-600 text-white shadow-sm">
+              <Sparkles className="h-4 w-4" />
+            </div>
+            <div>
+              <h2 className="text-sm font-bold text-slate-900 dark:text-white">Gemini Copilot</h2>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">Asistent inteligent pentru NotebookLM</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowKeyInput(!showKeyInput)}
+              className={`rounded-lg p-1.5 text-xs transition ${apiKey ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 hover:text-slate-600'}`}
+              title={apiKey ? 'Cheie API configurată' : 'Configurează Google Gemini API Key'}
+            >
+              <Key className="h-4 w-4" />
+            </button>
+            <button
+              onClick={onClose}
+              className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+        </div>
+
+        {/* Optional API Key banner/dropdown */}
+        {showKeyInput && (
+          <div className="border-b border-slate-200 bg-purple-50/70 p-4 dark:border-slate-800 dark:bg-purple-950/30">
+            <div className="flex items-start gap-2 text-xs text-purple-900 dark:text-purple-200">
+              <Info className="h-4 w-4 shrink-0 mt-0.5" />
+              <p>
+                Introduceți cheia dvs. Google Gemini API pentru răspunsuri live nelimitate. (Rămâne salvată strict în browser-ul dvs.).
+              </p>
+            </div>
+            <div className="mt-2 flex gap-2">
+              <input
+                type="password"
+                placeholder="AIzaSy..."
+                value={apiKey}
+                onChange={(e) => setApiKey(e.target.value)}
+                className="flex-1 rounded-lg border border-purple-200 bg-white px-2.5 py-1.5 text-xs dark:border-purple-800 dark:bg-slate-800 dark:text-white"
+              />
+              <button
+                onClick={() => handleSaveApiKey(apiKey)}
+                className="rounded-lg bg-purple-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-purple-700"
+              >
+                Salvează
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Notebook Context Selector */}
+        <div className="border-b border-slate-100 bg-slate-50/80 px-5 py-2.5 dark:border-slate-800 dark:bg-slate-800/50">
+          <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400">
+            Focalizare pe Notebook:
+          </label>
+          <select
+            value={selectedNotebookId}
+            onChange={(e) => setSelectedNotebookId(e.target.value)}
+            className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs text-slate-800 shadow-xs focus:border-purple-500 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+          >
+            <option value="">General (fără context specific)</option>
+            {notebooks.map((nb) => (
+              <option key={nb.id} value={nb.id}>
+                {nb.title} ({nb.category})
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Quick Action Chips */}
+        <div className="flex items-center gap-1.5 overflow-x-auto border-b border-slate-100 px-5 py-2 text-xs no-scrollbar dark:border-slate-800">
+          <button
+            onClick={() => handleSend(
+              currentSelectedNotebook 
+                ? `Generează o listă de întrebări analitice și profunde pentru notebook-ul "${currentSelectedNotebook.title}".` 
+                : 'Generează o listă de întrebări analitice pe care să le adresez surselor mele în NotebookLM.',
+              'generate_questions'
+            )}
+            className="shrink-0 flex items-center gap-1 rounded-full border border-purple-200 bg-purple-50 px-2.5 py-1 text-[11px] font-medium text-purple-700 hover:bg-purple-100 dark:border-purple-900/60 dark:bg-purple-950/40 dark:text-purple-300"
+          >
+            <HelpCircle className="h-3 w-3" />
+            <span>Întrebări cheie</span>
+          </button>
+
+          <button
+            onClick={() => handleSend(
+              currentSelectedNotebook 
+                ? `Sugerează cele mai bune tipuri de surse și materiale complementare pe care să le adaug în notebook-ul "${currentSelectedNotebook.title}".` 
+                : 'Ce fel de surse și articole ar trebui să caut și să încarc în Google NotebookLM pentru a obține sinteze de calitate?',
+              'suggest_sources'
+            )}
+            className="shrink-0 flex items-center gap-1 rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-[11px] font-medium text-blue-700 hover:bg-blue-100 dark:border-blue-900/60 dark:bg-blue-950/40 dark:text-blue-300"
+          >
+            <BookOpen className="h-3 w-3" />
+            <span>Sugestii surse</span>
+          </button>
+
+          <button
+            onClick={() => handleSend(
+              currentSelectedNotebook 
+                ? `Rezumă și structurează principalele idei pentru notebook-ul "${currentSelectedNotebook.title}" pe baza notițelor existente.` 
+                : 'Cum structurez cel mai bine un rezumat executiv în NotebookLM?',
+              'summarize'
+            )}
+            className="shrink-0 flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] font-medium text-emerald-700 hover:bg-emerald-100 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-300"
+          >
+            <FilePlus className="h-3 w-3" />
+            <span>Sinteză</span>
+          </button>
+        </div>
+
+        {/* Message Thread */}
+        <div className="flex-1 overflow-y-auto p-5 space-y-4">
+          {messages.map((msg, index) => (
+            <div
+              key={index}
+              className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}
+            >
+              <div
+                className={`relative max-w-[90%] rounded-2xl px-4 py-3 text-xs leading-relaxed shadow-xs ${
+                  msg.role === 'user'
+                    ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-tr-xs'
+                    : 'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200 rounded-tl-xs border border-slate-200/60 dark:border-slate-700/60'
+                }`}
+              >
+                {msg.role === 'user' ? (
+                  <div className="whitespace-pre-wrap">{msg.content}</div>
+                ) : (
+                  <FormattedMessage content={msg.content} />
+                )}
+                
+                {msg.role === 'assistant' && (
+                  <div className="mt-2.5 flex items-center justify-between border-t border-slate-200/60 pt-2 text-[10px] text-slate-400 dark:border-slate-700/60">
+                    <span>{msg.source === 'gemini-api' ? '✨ Gemini Live' : '💡 Asistent Inteligent'}</span>
+                    <div className="flex items-center gap-2">
+                      {currentSelectedNotebook && onUpdateNotebookNotes && (
+                        <button
+                          onClick={() => {
+                            onUpdateNotebookNotes(
+                              currentSelectedNotebook.id,
+                              `\n\n[Adăugat de Gemini Copilot]:\n${msg.content}`
+                            );
+                            alert(`Adăugat în notițele notebook-ului "${currentSelectedNotebook.title}"!`);
+                          }}
+                          className="hover:text-purple-600 dark:hover:text-purple-400 font-medium"
+                          title="Salvează acest răspuns direct în notițele notebook-ului"
+                        >
+                          + Adaugă în Notițe
+                        </button>
+                      )}
+                      <button
+                        onClick={() => copyToClipboard(msg.content, index)}
+                        className="hover:text-slate-700 dark:hover:text-slate-200"
+                        title="Copiază textul"
+                      >
+                        {copiedIndex === index ? (
+                          <Check className="h-3.5 w-3.5 text-emerald-500" />
+                        ) : (
+                          <Copy className="h-3.5 w-3.5" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+
+          {loading && (
+            <div className="flex items-center gap-2 text-xs text-purple-600 dark:text-purple-400">
+              <RefreshCw className="h-4 w-4 animate-spin" />
+              <span>Gemini analizează și formulează răspunsul...</span>
+            </div>
+          )}
+        </div>
+
+        {/* Input Bar */}
+        <div className="border-t border-slate-200 p-4 dark:border-slate-800">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSend();
+            }}
+            className="flex items-center gap-2"
+          >
+            <input
+              type="text"
+              placeholder="Întreabă Gemini sau cere idei pentru notebook..."
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              className="flex-1 rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-xs text-slate-900 shadow-xs focus:border-purple-500 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+            />
+            <button
+              type="submit"
+              disabled={loading || !prompt.trim()}
+              className="flex h-8 w-8 items-center justify-center rounded-xl bg-purple-600 text-white shadow hover:bg-purple-700 disabled:opacity-50"
+            >
+              <Send className="h-3.5 w-3.5" />
+            </button>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  );
+}
