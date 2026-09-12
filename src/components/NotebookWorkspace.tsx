@@ -42,6 +42,7 @@ import {
 import { Notebook, SourceItem, SourceType } from '@/lib/types';
 import { FormattedMessage } from './FormattedMessage';
 import { cleanDisplayReply } from '@/lib/cleaner';
+import { ExpenseBadge } from './ExpenseBadge';
 import { 
   getStoredExpenses, 
   recordExpense, 
@@ -679,86 +680,10 @@ NORME FACTUALE STRICTE:
           </div>
 
           {/* Expense Tracker Pill */}
-          <div className="relative">
-            <button
-              onClick={() => setShowExpenseDetails(!showExpenseDetails)}
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-mono transition cursor-pointer ${
-                isLight 
-                  ? 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50 shadow-2xs' 
-                  : 'border-slate-800 bg-slate-900 text-slate-300 hover:bg-slate-800'
-              }`}
-              title="Consum tokeni și costuri estimate Gemini API"
-            >
-              <Coins className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-              <span className={`font-semibold ${isLight ? 'text-emerald-700' : 'text-emerald-400'}`}>
-                ${expenses.totalCostUSD.toFixed(3)}
-              </span>
-              <span className={`text-[11px] font-mono opacity-80`}>
-                (~{expenses.totalCostMDL.toFixed(3)} MDL)
-              </span>
-            </button>
-
-            {/* Expense Popover */}
-            {showExpenseDetails && (
-              <div className={`absolute right-0 mt-2 w-72 rounded-2xl border p-4 shadow-xl z-50 text-xs ${
-                isLight ? 'border-slate-200 bg-white text-slate-800' : 'border-slate-800 bg-slate-900 text-slate-200'
-              }`}>
-                <div className="flex items-center justify-between border-b pb-2 mb-3">
-                  <span className="font-bold flex items-center gap-1.5">
-                    <Coins className="w-4 h-4 text-amber-500" />
-                    Cheltuieli API Gemini
-                  </span>
-                  <button
-                    onClick={() => setShowExpenseDetails(false)}
-                    className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-white"
-                  >
-                    <X className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-                
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center py-1">
-                    <span className="text-slate-500">Cost Total USD:</span>
-                    <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">
-                      ${expenses.totalCostUSD.toFixed(5)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center py-1">
-                    <span className="text-slate-500">Echivalent în MDL:</span>
-                    <span className="font-mono font-bold text-amber-600 dark:text-amber-300">
-                      ~{expenses.totalCostMDL.toFixed(3)} MDL
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center py-1 border-t border-slate-100 dark:border-slate-800">
-                    <span className="text-slate-500">Tokeni Total:</span>
-                    <span className="font-mono">{expenses.totalTokens.toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between text-[11px] text-slate-400 pl-2">
-                    <span>• Prompt (intrare):</span>
-                    <span className="font-mono">{expenses.promptTokens.toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between text-[11px] text-slate-400 pl-2">
-                    <span>• Output (răspuns):</span>
-                    <span className="font-mono">{expenses.candidateTokens.toLocaleString()}</span>
-                  </div>
-
-                  <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center text-[11px]">
-                    <span className="text-slate-400">{expenses.queriesCount} interogări</span>
-                    <button
-                      onClick={() => {
-                        if (confirm('Resetați contorul de cheltuieli la $0.00?')) {
-                          setExpenses(resetExpenses());
-                        }
-                      }}
-                      className="text-rose-500 hover:underline cursor-pointer"
-                    >
-                      Resetează contorul
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
+          <ExpenseBadge 
+            expenses={expenses} 
+            onUpdateExpenses={(updated) => setExpenses(updated)} 
+          />
 
           {/* API Key Connect Pill */}
           <button

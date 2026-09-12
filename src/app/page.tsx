@@ -24,11 +24,13 @@ import { GeminiCopilotDrawer } from '@/components/GeminiCopilotDrawer';
 import { ImportExportModal } from '@/components/ImportExportModal';
 import { NotebookWorkspace } from '@/components/NotebookWorkspace';
 import { ApiKeyModal } from '@/components/ApiKeyModal';
+import { ExpenseStats, INITIAL_EXPENSES, getStoredExpenses } from '@/lib/expenseTracker';
 
 export default function Home() {
   const [notebooks, setNotebooks] = useState<Notebook[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const [activeWorkspaceNotebook, setActiveWorkspaceNotebook] = useState<Notebook | null>(null);
+  const [expenses, setExpenses] = useState<ExpenseStats>(INITIAL_EXPENSES);
 
   // Filters & Search
   const [searchQuery, setSearchQuery] = useState('');
@@ -50,6 +52,7 @@ export default function Home() {
     const data = getStoredNotebooks();
     setNotebooks(data);
     setHasApiKey(Boolean(localStorage.getItem('gemini_user_api_key')));
+    setExpenses(getStoredExpenses());
     
     // Default to light (Varianta Albă)
     const savedTheme = (localStorage.getItem('notebooklm_theme') as 'light' | 'dark') || 'light';
@@ -176,7 +179,10 @@ export default function Home() {
     return (
       <NotebookWorkspace
         notebook={activeWorkspaceNotebook}
-        onBack={() => setActiveWorkspaceNotebook(null)}
+        onBack={() => {
+          setActiveWorkspaceNotebook(null);
+          setExpenses(getStoredExpenses());
+        }}
         onUpdateNotebook={(updated) => {
           setActiveWorkspaceNotebook(updated);
           const newNotebooks = notebooks.map(nb => nb.id === updated.id ? updated : nb);
@@ -221,7 +227,7 @@ export default function Home() {
               </span>
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-              {totalSources} {totalSources === 1 ? 'sursă conectată' : 'surse conectate'} • {totalAudio} {totalAudio === 1 ? 'sinteză podcast' : 'sinteze podcast'} • {totalFavorites} favorite
+              {totalSources} {totalSources === 1 ? 'sursă conectată' : 'surse conectate'} • {totalAudio} {totalAudio === 1 ? 'sinteză podcast' : 'sinteze podcast'} • {totalFavorites} favorite • <span className="font-mono font-semibold text-emerald-600 dark:text-emerald-400">${expenses.totalCostUSD.toFixed(3)}</span> <span className="text-slate-400 dark:text-slate-500">(~{expenses.totalCostMDL.toFixed(3)} MDL)</span>
             </p>
           </div>
 

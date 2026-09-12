@@ -12,6 +12,7 @@ import {
   Settings,
   X
 } from 'lucide-react';
+import { ExpenseBadge } from '@/components/ExpenseBadge';
 
 interface NavbarProps {
   onAddNew?: () => void;
@@ -70,6 +71,9 @@ export function Navbar({
             <Key className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">{hasApiKey ? 'Gemini Activ' : 'Conectează API'}</span>
           </button>
+
+          {/* Expense Tracker Pill */}
+          <ExpenseBadge />
 
           {/* Gemini Copilot Button */}
           <button
