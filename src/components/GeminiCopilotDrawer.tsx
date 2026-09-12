@@ -65,9 +65,13 @@ Alege un notebook de mai jos sau scrie-mi direct!`,
   }, []);
 
   const handleSaveApiKey = (key: string) => {
-    setApiKey(key);
-    localStorage.setItem('gemini_user_api_key', key);
+    const trimmed = key.trim();
+    setApiKey(trimmed);
+    localStorage.setItem('gemini_user_api_key', trimmed);
     setShowKeyInput(false);
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('storage'));
+    }
   };
 
   const handleSend = async (customPrompt?: string, mode?: 'generate_questions' | 'suggest_sources' | 'summarize' | 'chat') => {
@@ -180,13 +184,33 @@ Răspunde clar, structurat, bine formatat și exclusiv în limba română.`;
         { role: 'assistant', content: cleanReply, source: 'gemini-api' },
       ]);
     } else {
+      let friendlyError = lastErrorMessage 
+        ? `Eroare Google Gemini API: ${lastErrorMessage}` 
+        : 'Ne pare rău, nu am putut obține un răspuns de la Gemini API. Verifică conexiunea sau cheia API introdusă.';
+
+      const errLower = (lastErrorMessage || '').toLowerCase();
+      if (
+        errLower.includes('invalid authentication credentials') || 
+        errLower.includes('expected oauth') ||
+        errLower.includes('api key not valid') ||
+        errLower.includes('invalid_argument')
+      ) {
+        friendlyError = `⚠️ **Cheia salvată nu este o cheie Gemini API validă.**
+
+Google a respins datele de autentificare. Pentru a folosi asistentul în mod liber, ai nevoie de o **cheie API oficială gratuită** generată în Google AI Studio:
+
+1. Intră pe **[aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey)** (cu contul tău Google).
+2. Apasă pe butonul albastru **„Create API key”**.
+3. Copiază cheia creată (aceasta începe de regulă cu **\`AIzaSy...\`**).
+4. Apasă pe iconița cu cheie 🔑 de sus și lipește noua cheie.`;
+        setShowKeyInput(true);
+      }
+
       setMessages((prev) => [
         ...prev,
         { 
           role: 'assistant', 
-          content: lastErrorMessage 
-            ? `Eroare Google Gemini API: ${lastErrorMessage}` 
-            : 'Ne pare rău, nu am putut obține un răspuns de la Gemini API. Verifică conexiunea sau cheia API introdusă.' 
+          content: friendlyError 
         },
       ]);
     }
