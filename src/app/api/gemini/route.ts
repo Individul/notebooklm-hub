@@ -79,8 +79,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Prompt-ul este obligatoriu' }, { status: 400 });
     }
 
+    // Detect if this is a contraventional notebook
+    const isContraventionContext = context && (context.toLowerCase().includes('contraven') || context.toLowerCase().includes('seed-contraventional'));
+    const allowedAbbrs: ('CP' | 'CE' | 'CPP' | 'CC')[] | undefined = isContraventionContext ? ['CC', 'CE'] : undefined;
+
     // 1. Check official Republic of Moldova legislation database for all relevant articles
-    const allRelevantArticles = findAllRelevantArticles(prompt);
+    const allRelevantArticles = findAllRelevantArticles(prompt, allowedAbbrs);
     const matchedOfficialArticle = allRelevantArticles.length > 0 ? allRelevantArticles[0] : findArticleByPrompt(prompt);
     
     // Also check if any uploaded document in context has a pinpointed article
@@ -132,19 +136,24 @@ DIRECTIVĂ STRICTĂ: Bazează-te STRICT pe fragmentul oficial de mai sus extras 
     if (apiKey) {
       const genAI = new GoogleGenerativeAI(apiKey);
 
+      const contraventionWarning = isContraventionContext ? `
+7. CONSTRÂNGERE STRICTĂ DE DOMENIU (CAIET DE DREPT CONTRAVENȚIONAL):
+   - Răspunsul tău trebuie să fie STRICT limitat la Codul contravențional nr. 218/2008 și Codul de executare nr. 443/2004 (sancțiuni contravenționale).
+   - ESTE CATEGORIC ȘI STRICT INTERZISĂ menționarea, invocarea sau trimiterea la Codul de procedură penală (CPP) ori la proceduri penale auxiliare (cum ar fi „darea în consemn” sau proceduri din urmărirea penală). Acestea sunt considerate halucinații irelevante de către utilizator.
+   - Răspunde strict și direct la întrebare (ex: executarea separată și succesivă a mandatelor/încheierilor de arest contravențional conform art. 312 alin. 3 CE RM), fără digresiuni legislative necerute.` : '';
+
       const systemInstruction = `Ești un asistent juridic de elită specializat exclusiv în legislația oficială a REPUBLICII MOLDOVA în NotebookLM.
 
 NORME ȘI REGULI FACTUALE STRICTE PRIVIND LEGISLAȚIA REPUBLICII MOLDOVA:
 1. CADRU JURIDIC EXCLUSIV ȘI SUVERAN AL REPUBLICII MOLDOVA: 
    - Utilizezi EXCLUSIV legislația oficială a Republicii Moldova adoptată de Parlamentul Republicii Moldova și publicată în Monitorul Oficial al Republicii Moldova (Registrul de Stat al Actelor Juridice legis.md):
      * **Codul contravențional al Republicii Moldova nr. 218/2008** (cu modificările la zi);
-     * **Codul penal al Republicii Moldova nr. 985/2002**;
      * **Codul de executare al Republicii Moldova nr. 443/2004**;
-     * **Codul de procedură penală al Republicii Moldova nr. 122/2003**;
+     ${!isContraventionContext ? '* **Codul penal al Republicii Moldova nr. 985/2002**;\n     * **Codul de procedură penală al Republicii Moldova nr. 122/2003**;' : ''}
      * **Regulamentul circulației rutiere al Republicii Moldova** (HG RM nr. 357/2009);
      * **Legea nr. 131/2007 privind siguranța traficului rutier din RM**;
      * **Legea nr. 320/2012 cu privire la activitatea Poliției și statutul polițistului**.
-   - **INTERDICȚIE ABSOLUTĂ:** Este STRICT INTERZISĂ utilizarea oricăror legi, ordonanțe, articole sau denumiri din România (cum ar fi OG nr. 2/2001, OUG nr. 195/2002, Codul penal român etc.) sau alte jurisdicții străine. Răspunsul tău trebuie să fie 100% ancorat în dreptul Republicii Moldova.
+   - **INTERDICȚIE ABSOLUTĂ:** Este STRICT INTERZISĂ utilizarea oricăror legi, ordonanțe, articole sau denumiri din România (cum ar fi OG nr. 2/2001, OUG nr. 195/2002, Codul penal român etc.) sau alte jurisdicții străine. Răspunsul tău trebuie să fie 100% ancorat în dreptul Republicii Moldova.${contraventionWarning}
 
 2. SPECIFICUL DREPTULUI CONTRAVENȚIONAL AL REPUBLICII MOLDOVA (Codul Contravențional nr. 218/2008):
    - **Unitatea convențională (u.c.):** O unitate convențională de amendă în Republica Moldova este egală cu **50 lei moldovenești (MDL)** (art. 34 alin. 1 CC RM).

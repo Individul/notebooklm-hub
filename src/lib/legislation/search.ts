@@ -106,9 +106,13 @@ export function findArticleByPrompt(prompt: string): LegalArticle | null {
 /**
  * Discovers all directly mentioned and topic-related articles (e.g. Art. 151 + Art. 16 + Art. 216)
  */
-export function findAllRelevantArticles(prompt: string): LegalArticle[] {
+export function findAllRelevantArticles(prompt: string, allowedAbbrs?: ('CP' | 'CE' | 'CPP' | 'CC')[]): LegalArticle[] {
   const norm = normalizeText(prompt);
-  const articles = getLegislationArticles();
+  const allArticles = getLegislationArticles();
+  const articles = allowedAbbrs && allowedAbbrs.length > 0
+    ? allArticles.filter(a => allowedAbbrs.includes(a.abbr))
+    : allArticles;
+  const isAllowed = (abbr: 'CP' | 'CE' | 'CPP' | 'CC') => !allowedAbbrs || allowedAbbrs.includes(abbr);
   const results: LegalArticle[] = [];
 
   // 1. Explicit articles mentioned in prompt
@@ -120,21 +124,21 @@ export function findAllRelevantArticles(prompt: string): LegalArticle[] {
     const isCPP = norm.includes('procedura') || norm.includes('cpp');
     
     let art: LegalArticle | undefined;
-    if (isCC) art = articles.find(a => a.abbr === 'CC' && a.number === num);
-    else if (isCE) art = articles.find(a => a.abbr === 'CE' && a.number === num);
-    else if (isCPP) art = articles.find(a => a.abbr === 'CPP' && a.number === num);
-    else art = articles.find(a => a.abbr === 'CP' && a.number === num);
+    if (isCC && isAllowed('CC')) art = articles.find(a => a.abbr === 'CC' && a.number === num);
+    else if (isCE && isAllowed('CE')) art = articles.find(a => a.abbr === 'CE' && a.number === num);
+    else if (isCPP && isAllowed('CPP')) art = articles.find(a => a.abbr === 'CPP' && a.number === num);
+    else if (isAllowed('CP')) art = articles.find(a => a.abbr === 'CP' && a.number === num);
 
     if (!art) {
-      art = articles.find(a => a.abbr === 'CC' && a.number === num) || articles.find(a => a.number === num);
+      art = articles.find(a => a.number === num);
     }
-    if (art && !results.some(r => r.abbr === art!.abbr && r.number === art!.number)) {
+    if (art && isAllowed(art.abbr) && !results.some(r => r.abbr === art!.abbr && r.number === art!.number)) {
       results.push(art);
     }
   }
 
   // 2. Cross-reference: Termenul de prescripție a răspunderii contravenționale (Art. 30 CC)
-  if (norm.includes('prescriptie') && (norm.includes('contravent') || norm.includes('proces verbal') || norm.includes('amenda'))) {
+  if (isAllowed('CC') && norm.includes('prescriptie') && (norm.includes('contravent') || norm.includes('proces verbal') || norm.includes('amenda'))) {
     const cc30 = articles.find(a => a.abbr === 'CC' && a.number === '30');
     if (cc30 && !results.some(r => r.abbr === 'CC' && r.number === '30')) {
       results.push(cc30);
@@ -142,7 +146,7 @@ export function findAllRelevantArticles(prompt: string): LegalArticle[] {
   }
 
   // 3. Cross-reference: Întocmirea și nulitatea procesului-verbal contravențional (Art. 443 CC)
-  if (norm.includes('proces verbal') || norm.includes('procesul verbal') || norm.includes('nulitate') || norm.includes('contestat')) {
+  if (isAllowed('CC') && (norm.includes('proces verbal') || norm.includes('procesul verbal') || norm.includes('nulitate') || norm.includes('contestat'))) {
     const cc443 = articles.find(a => a.abbr === 'CC' && a.number === '443');
     if (cc443 && !results.some(r => r.abbr === 'CC' && r.number === '443')) {
       results.push(cc443);
@@ -154,7 +158,7 @@ export function findAllRelevantArticles(prompt: string): LegalArticle[] {
   }
 
   // 4. Cross-reference: Conducerea vehiculului în stare de ebrietate (Art. 233 CC)
-  if (norm.includes('ebrietate') || norm.includes('alcool') || norm.includes('sub influenta')) {
+  if (isAllowed('CC') && (norm.includes('ebrietate') || norm.includes('alcool') || norm.includes('sub influenta'))) {
     const cc233 = articles.find(a => a.abbr === 'CC' && a.number === '233');
     if (cc233 && !results.some(r => r.abbr === 'CC' && r.number === '233')) {
       results.push(cc233);
@@ -163,27 +167,32 @@ export function findAllRelevantArticles(prompt: string): LegalArticle[] {
 
   // 5. Cross-reference: Executarea sancțiunilor contravenționale / a arestului contravențional / mai multe hotărâri sau încheieri (Art. 311, 312, 313, 318 CE RM + Art. 38 CC RM)
   if (
+    (isAllowed('CE') || isAllowed('CC')) &&
     (norm.includes('executare') || norm.includes('executa') || norm.includes('punere in executare')) &&
     (norm.includes('arest') || norm.includes('contravent') || norm.includes('incheier') || norm.includes('hotarar') || norm.includes('sanctiun') || norm.includes('persoan') || norm.includes('separat'))
   ) {
-    const ce312 = articles.find(a => a.abbr === 'CE' && a.number === '312');
-    if (ce312 && !results.some(r => r.abbr === 'CE' && r.number === '312')) results.push(ce312);
+    if (isAllowed('CE')) {
+      const ce312 = articles.find(a => a.abbr === 'CE' && a.number === '312');
+      if (ce312 && !results.some(r => r.abbr === 'CE' && r.number === '312')) results.push(ce312);
 
-    const ce318 = articles.find(a => a.abbr === 'CE' && a.number === '318');
-    if (ce318 && !results.some(r => r.abbr === 'CE' && r.number === '318')) results.push(ce318);
+      const ce318 = articles.find(a => a.abbr === 'CE' && a.number === '318');
+      if (ce318 && !results.some(r => r.abbr === 'CE' && r.number === '318')) results.push(ce318);
 
-    const ce311 = articles.find(a => a.abbr === 'CE' && a.number === '311');
-    if (ce311 && !results.some(r => r.abbr === 'CE' && r.number === '311')) results.push(ce311);
+      const ce311 = articles.find(a => a.abbr === 'CE' && a.number === '311');
+      if (ce311 && !results.some(r => r.abbr === 'CE' && r.number === '311')) results.push(ce311);
 
-    const ce313 = articles.find(a => a.abbr === 'CE' && a.number === '313');
-    if (ce313 && !results.some(r => r.abbr === 'CE' && r.number === '313')) results.push(ce313);
+      const ce313 = articles.find(a => a.abbr === 'CE' && a.number === '313');
+      if (ce313 && !results.some(r => r.abbr === 'CE' && r.number === '313')) results.push(ce313);
+    }
 
-    const cc38 = articles.find(a => a.abbr === 'CC' && a.number === '38');
-    if (cc38 && !results.some(r => r.abbr === 'CC' && r.number === '38')) results.push(cc38);
+    if (isAllowed('CC')) {
+      const cc38 = articles.find(a => a.abbr === 'CC' && a.number === '38');
+      if (cc38 && !results.some(r => r.abbr === 'CC' && r.number === '38')) results.push(cc38);
+    }
   }
 
   // 6. Cross-reference: Deplasare fără escortă / regim (Art. 216 CE)
-  if (norm.includes('escorta') || norm.includes('fara escorta') || norm.includes('insoțire') || norm.includes('insoitire')) {
+  if (isAllowed('CE') && (norm.includes('escorta') || norm.includes('fara escorta') || norm.includes('insoțire') || norm.includes('insoitire'))) {
     const ce216 = articles.find(a => a.abbr === 'CE' && a.number === '216');
     if (ce216 && !results.some(r => r.abbr === 'CE' && r.number === '216')) {
       results.push(ce216);
@@ -193,12 +202,13 @@ export function findAllRelevantArticles(prompt: string): LegalArticle[] {
   // 7. Cross-reference: Clasificarea infracțiunilor (Art. 16 CP)
   // Needed whenever an offense penalty, escort, classification, or early release is questioned
   if (
-    norm.includes('clasific') || 
+    isAllowed('CP') &&
+    (norm.includes('clasific') || 
     norm.includes('grava') || 
     norm.includes('deosebit de') || 
     norm.includes('categorie') || 
     norm.includes('gravitate') ||
-    (results.some(r => r.abbr === 'CP') && (norm.includes('escorta') || norm.includes('liberare') || norm.includes('inlocuire') || norm.includes('termen')))
+    (results.some(r => r.abbr === 'CP') && (norm.includes('escorta') || norm.includes('liberare') || norm.includes('inlocuire') || norm.includes('termen'))))
   ) {
     const cp16 = articles.find(a => a.abbr === 'CP' && a.number === '16');
     if (cp16 && !results.some(r => r.abbr === 'CP' && r.number === '16')) {
@@ -207,22 +217,24 @@ export function findAllRelevantArticles(prompt: string): LegalArticle[] {
   }
 
   // 8. Cross-reference: Liberare condiționată (Art. 91 CP + Art. 266-267 CE)
-  if (norm.includes('liberare conditionata') || norm.includes('art. 91') || norm.includes('articolul 91')) {
+  if (isAllowed('CP') && (norm.includes('liberare conditionata') || norm.includes('art. 91') || norm.includes('articolul 91'))) {
     const cp91 = articles.find(a => a.abbr === 'CP' && a.number === '91');
     if (cp91 && !results.some(r => r.abbr === 'CP' && r.number === '91')) results.push(cp91);
-    const ce266 = articles.find(a => a.abbr === 'CE' && a.number === '266');
-    if (ce266 && !results.some(r => r.abbr === 'CE' && r.number === '266')) results.push(ce266);
+    if (isAllowed('CE')) {
+      const ce266 = articles.find(a => a.abbr === 'CE' && a.number === '266');
+      if (ce266 && !results.some(r => r.abbr === 'CE' && r.number === '266')) results.push(ce266);
+    }
   }
 
   // 9. Cross-reference: Deținerea separată (Art. 205 CE)
-  if (norm.includes('separat') || norm.includes('detinere separata') || norm.includes('art. 205') || norm.includes('articolul 205')) {
+  if (isAllowed('CE') && (norm.includes('separat') || norm.includes('detinere separata') || norm.includes('art. 205') || norm.includes('articolul 205'))) {
     const ce205 = articles.find(a => a.abbr === 'CE' && a.number === '205');
     if (ce205 && !results.some(r => r.abbr === 'CE' && r.number === '205')) results.push(ce205);
   }
 
   // 10. Automatic semantic keyword discovery fallback if few or no articles matched
   if (results.length < 3) {
-    const keywordMatches = searchArticlesByKeywords(prompt, 5);
+    const keywordMatches = searchArticlesByKeywords(prompt, 5, allowedAbbrs);
     for (const km of keywordMatches) {
       if (!results.some(r => r.abbr === km.abbr && r.number === km.number)) {
         results.push(km);
@@ -237,12 +249,16 @@ export function findAllRelevantArticles(prompt: string): LegalArticle[] {
 /**
  * Search articles by keywords if no specific article number was matched
  */
-export function searchArticlesByKeywords(query: string, maxResults: number = 3): LegalArticle[] {
+export function searchArticlesByKeywords(query: string, maxResults: number = 3, allowedAbbrs?: ('CP' | 'CE' | 'CPP' | 'CC')[]): LegalArticle[] {
   const normQuery = normalizeText(query);
   const words = normQuery.split(' ').filter(w => w.length >= 4);
   if (words.length === 0) return [];
 
-  const articles = getLegislationArticles();
+  const allArticles = getLegislationArticles();
+  const articles = allowedAbbrs && allowedAbbrs.length > 0
+    ? allArticles.filter(a => allowedAbbrs.includes(a.abbr))
+    : allArticles;
+
   const scored = articles.map(art => {
     const normTitle = normalizeText(art.title);
     const normText = normalizeText(art.text);
@@ -291,6 +307,7 @@ export function formatLegalArticle(art: LegalArticle): string {
 
   for (const line of lines) {
     if (line.startsWith('Articolul ') && line.includes('.')) continue;
+    if (/^\[Art\./i.test(line)) continue;
     if (/^în vârstă de până/i.test(line)) continue;
     if (/^cu o pedeapsă mai blândă/i.test(line)) continue;
     if (/^înainte de termen/i.test(line)) continue;
@@ -312,6 +329,11 @@ export function formatLegalArticle(art: LegalArticle): string {
 
   for (const p of paras) {
     let t = p.rawText.trim();
+    
+    // In contraventional context, clean extraneous secondary penal procedure pointer from Art 312
+    if (art.abbr === 'CE' && art.number === '312') {
+      t = t.replace(/,\s*cu darea în consemn potrivit Codului de procedură penală[^\.]*/gi, '');
+    }
     
     // Emphasize fractions and critical limits
     t = t.replace(/\b(cel puţin o treime|cel puţin jumătate|cel puţin două treimi|cel puțin 1\/2|cel puțin 2\/3|cel puțin 1\/3)\b/gi, '**$1**');
