@@ -43,6 +43,7 @@ import { Notebook, SourceItem, SourceType } from '@/lib/types';
 import { FormattedMessage } from './FormattedMessage';
 import { cleanDisplayReply } from '@/lib/cleaner';
 import { ExpenseBadge } from './ExpenseBadge';
+import { callGeminiDirect } from '@/lib/geminiDirect';
 import { 
   getStoredExpenses, 
   recordExpense, 
@@ -431,48 +432,26 @@ NORME FACTUALE STRICTE:
    - Delimitează clar punctele: **(1)**, **(2)** etc.
    - Redactare clară și exhaustivă exclusiv în limba română.`;
 
-        const candidateModels = [
-          selectedModel,
-          'gemini-3.5-flash-lite',
-          'gemini-2.0-flash-lite',
-          'gemini-2.0-flash',
-          'gemini-1.5-flash',
-          'gemini-1.5-pro'
-        ];
-        const uniqueModels = Array.from(new Set(candidateModels));
         const fullPrompt = `${legalGroundingBlock}\n\n=== DOCUMENTE ȘI SURSE ===\n${context}\n\n=== ÎNTREBARE ===\n${query}`;
 
-        for (const m of uniqueModels) {
-          try {
-            const directRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${apiKey}`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                systemInstruction: {
-                  parts: [{ text: systemPromptRM }]
-                },
-                contents: [{ parts: [{ text: fullPrompt }] }],
-                generationConfig: { temperature: 0.05, topP: 0.8 }
-              })
-            });
-            if (directRes.ok) {
-              const apiJson = await directRes.json();
-              const text = apiJson.candidates?.[0]?.content?.parts?.[0]?.text;
-              if (text) {
-                const promptTokens = apiJson.usageMetadata?.promptTokenCount || Math.ceil(fullPrompt.length / 4);
-                const candidateTokens = apiJson.usageMetadata?.candidatesTokenCount || Math.ceil(text.length / 4);
-                data = {
-                  reply: text,
-                  model: m,
-                  source: relevantArticles.length > 0 ? 'official-rm-legislation+gemini' : 'gemini-api',
-                  usage: { promptTokens, candidateTokens }
-                };
-                break;
-              }
-            }
-          } catch (mErr) {
-            console.warn(`Direct model call to ${m} failed:`, mErr);
-          }
+        try {
+          const directRes = await callGeminiDirect({
+            prompt: fullPrompt,
+            systemInstruction: systemPromptRM,
+            apiKey: apiKey,
+            preferredModel: selectedModel,
+            temperature: 0.05,
+            topP: 0.8
+          });
+
+          data = {
+            reply: directRes.text,
+            model: directRes.model,
+            source: relevantArticles.length > 0 ? 'official-rm-legislation+gemini' : 'gemini-api',
+            usage: directRes.usage
+          };
+        } catch (mErr) {
+          console.warn('Direct Gemini call failed:', mErr);
         }
 
         if (!data && relevantArticles.length > 0) {

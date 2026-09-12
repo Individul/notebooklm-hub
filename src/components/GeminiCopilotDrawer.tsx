@@ -18,6 +18,7 @@ import { Notebook } from '@/lib/types';
 import { FormattedMessage } from './FormattedMessage';
 import { cleanDisplayReply } from '@/lib/cleaner';
 import { recordExpense } from '@/lib/expenseTracker';
+import { callGeminiDirect } from '@/lib/geminiDirect';
 
 interface GeminiCopilotDrawerProps {
   isOpen: boolean;
@@ -112,17 +113,6 @@ Alege un notebook de mai jos sau scrie-mi direct!`,
       return;
     }
 
-    const candidateModels = [
-      'gemini-2.0-flash',
-      'gemini-1.5-flash',
-      'gemini-1.5-pro'
-    ];
-
-    let replyText = '';
-    let usedModel = '';
-    let usage = { promptTokens: 0, candidateTokens: 0 };
-    let lastErrorMessage = '';
-
     const systemInstructionText = `Ești Gemini Copilot, asistentul inteligent pentru NotebookLM Hub.
 Ajută utilizatorul cu formularea de întrebări analitice, explorarea legislației Republicii Moldova, sinteza surselor, structurarea notițelor și idei de cercetare juridică și documentară.
 Toate referințele la legislație trebuie să vizeze strict Republica Moldova.
@@ -130,65 +120,22 @@ Răspunde clar, structurat, bine formatat și exclusiv în limba română.`;
 
     const fullPrompt = `${contextStr ? `=== CONTEXTUL NOTEBOOK-ULUI SELECTAT ===\n${contextStr}\n\n` : ''}=== ÎNTREBAREA SAU CERINȚA UTILIZATORULUI ===\n${textToSend}`;
 
-    for (const m of candidateModels) {
-      try {
-        const directRes = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${storedKey}`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              systemInstruction: {
-                parts: [{ text: systemInstructionText }]
-              },
-              contents: [{ parts: [{ text: fullPrompt }] }],
-              generationConfig: { temperature: 0.2, topP: 0.85 }
-            })
-          }
-        );
+    try {
+      const res = await callGeminiDirect({
+        prompt: fullPrompt,
+        systemInstruction: systemInstructionText,
+        apiKey: storedKey
+      });
 
-        if (directRes.ok) {
-          const apiJson = await directRes.json();
-          const text = apiJson.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (text) {
-            replyText = text;
-            usedModel = m;
-            const promptTokens = apiJson.usageMetadata?.promptTokenCount || Math.ceil(fullPrompt.length / 4);
-            const candidateTokens = apiJson.usageMetadata?.candidatesTokenCount || Math.ceil(text.length / 4);
-            usage = { promptTokens, candidateTokens };
-            break;
-          }
-        } else {
-          const errJson = await directRes.json().catch(() => null);
-          if (errJson?.error?.message) {
-            lastErrorMessage = errJson.error.message;
-          }
-        }
-      } catch (err: any) {
-        lastErrorMessage = err?.message || 'Eroare de conexiune la Google Gemini API';
-      }
-    }
-
-    if (replyText) {
-      const cleanReply = cleanDisplayReply(replyText);
-      try {
-        recordExpense(usedModel, usage.promptTokens, usage.candidateTokens);
-        if (typeof window !== 'undefined') {
-          window.dispatchEvent(new Event('storage'));
-        }
-      } catch (expErr) {
-        console.warn('Error recording expense:', expErr);
-      }
       setMessages((prev) => [
         ...prev,
-        { role: 'assistant', content: cleanReply, source: 'gemini-api' },
+        { role: 'assistant', content: res.text, source: 'gemini-api' }
       ]);
-    } else {
-      let friendlyError = lastErrorMessage 
-        ? `Eroare Google Gemini API: ${lastErrorMessage}` 
-        : 'Ne pare rău, nu am putut obține un răspuns de la Gemini API. Verifică conexiunea sau cheia API introdusă.';
+    } catch (err: any) {
+      const errMsg = err?.message || 'Eroare la contactarea Google Gemini API';
+      const errLower = errMsg.toLowerCase();
+      let friendlyError = `Eroare Google Gemini API: ${errMsg}`;
 
-      const errLower = (lastErrorMessage || '').toLowerCase();
       if (
         errLower.includes('invalid authentication credentials') || 
         errLower.includes('expected oauth') ||
@@ -213,9 +160,9 @@ Google a respins datele de autentificare. Pentru a folosi asistentul în mod lib
           content: friendlyError 
         },
       ]);
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   const copyToClipboard = (text: string, index: number) => {
