@@ -357,77 +357,56 @@ export function NotebookWorkspace({
       sessionTitle = query.length > 38 ? query.slice(0, 38).trim() + '...' : query.trim();
     }
 
-    const sourcesSummary = notebook.sources?.map(s => {
+    // Format sources summary only if there are actual sources with content or URLs
+    const validSources = notebook.sources?.filter(s => s.content || s.url) || [];
+    const sourcesSummary = validSources.map(s => {
       let str = `[${s.type.toUpperCase()}] ${s.title}`;
       if (s.content) str += `:\n${s.content}`;
       else if (s.url) str += ` (Link: ${s.url})`;
       return str;
-    }).join('\n\n---\n\n') || 'Fără surse încărcate';
+    }).join('\n\n---\n\n');
     
-    const context = `Notebook: "${notebook.title}"\nDescriere: ${notebook.description}\n\nConținutul surselor analizate:\n${sourcesSummary}\n\nNotițe curente ale utilizatorului:\n${notesContent}`;
+    let contextBlock = '';
+    if (sourcesSummary || notesContent.trim()) {
+      contextBlock = `=== CONTEXTUL NOTEBOOK-ULUI ("${notebook.title}") ===\n` +
+        (notebook.description ? `Descriere: ${notebook.description}\n` : '') +
+        (sourcesSummary ? `Surse și documente analizate:\n${sourcesSummary}\n\n` : '') +
+        (notesContent.trim() ? `Notițe curente:\n${notesContent.trim()}\n\n` : '');
+    }
 
     try {
       const apiKey = localStorage.getItem('gemini_user_api_key') || '';
       let data: any = null;
-      try {
-        const res = await fetch('/api/gemini', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            prompt: query,
-            mode: 'chat',
-            context,
-            apiKey: apiKey || undefined,
-            requestedModel: selectedModel,
-          }),
-        });
 
-        if (res.ok) {
-          data = await res.json();
-        }
-      } catch (fetchErr) {
-        console.warn('Backend /api/gemini unreachable, attempting direct client fallback:', fetchErr);
+      const relevantArticles = findAllRelevantArticles(query);
+      let legalGroundingBlock = '';
+      if (relevantArticles.length > 0) {
+        legalGroundingBlock = `=== CADRU NORMATIV OFICIAL DIN REPUBLICA MOLDOVA (OBLIGATORIU ȘI FACTUAL) ===\n` +
+          relevantArticles.map(a => `[${a.code} - Art. ${a.number}: ${a.title}]\n${a.text}`).join('\n\n---\n\n') + '\n\n';
       }
 
-      if (!data && apiKey) {
-        const relevantArticles = findAllRelevantArticles(query);
-        let legalGroundingBlock = '';
-        if (relevantArticles.length > 0) {
-          legalGroundingBlock = `\n\n=== TEXTE OFICIALE DIN LEGISLAȚIA REPUBLICII MOLDOVA ===\n` +
-            relevantArticles.map(a => formatLegalArticle(a)).join('\n\n---\n\n');
-        }
+      const fullPrompt = `${legalGroundingBlock}${contextBlock}=== ÎNTREBAREA SAU CERINȚA UTILIZATORULUI ===\n${query}`;
 
-        const systemPromptRM = `Ești un asistent juridic de elită specializat exclusiv în legislația oficială a REPUBLICII MOLDOVA în NotebookLM.
+      const systemPromptRM = `Ești asistentul juridic de elită specializat exclusiv în legislația oficială a REPUBLICII MOLDOVA în NotebookLM Hub.
 
-NORME FACTUALE STRICTE:
-1. CADRU JURIDIC EXCLUSIV ȘI SUVERAN RM:
-   - Folosești exclusiv actele normative oficiale ale Republicii Moldova (Parlamentul RM, Monitorul Oficial al RM, legis.md):
-     * Codul contravențional al Republicii Moldova nr. 218/2008 (cu modificările la zi)
-     * Codul penal al Republicii Moldova nr. 985/2002
-     * Codul de executare al RM nr. 443/2004
-     * Codul de procedură penală al RM nr. 122/2003
-     * Regulamentul circulației rutiere al RM (HG nr. 357/2009)
-     * Legea nr. 131/2007 privind siguranța traficului rutier din RM
-     * Legea nr. 320/2012 cu privire la activitatea Poliției și statutul polițistului
-   - ESTE STRICT ȘI CATEGORIC INTERZISĂ invocarea legislației din România (OG 2/2001, OUG 195/2002 etc.) sau a oricărui alt stat străin. Toate răspunsurile se bazează 100% pe legislația Republicii Moldova.
-2. DREPTUL CONTRAVENȚIONAL RM (Codul Contravențional nr. 218/2008):
-   - Unitatea convențională (u.c.) de amendă este de 50 de lei moldovenești (MDL) (art. 34 alin. 1).
-   - Achitarea a 50% din amendă dacă plata se face în termen de 3 zile lucrătoare (art. 34 alin. 3).
-   - Termenul general de prescripție a răspunderii contravenționale este de 1 an (art. 30).
-   - Contestarea procesului-verbal de constatare se depune în termen de 15 zile (art. 448).
-   - Mențiunile obligatorii și nulitatea procesului-verbal (art. 443, 445).
-3. EXECUTAREA SANCȚIUNILOR CONTRAVENȚIONALE (Codul de Executare al RM nr. 443/2004):
-   - Executarea mai multor hotărâri/încheieri (art. 312 alin. 3 CE RM): «În cazul pronunţării câtorva hotărâri privind aplicarea sancţiunilor contravenţionale referitor la una şi aceeaşi persoană, fiecare hotărâre se execută separat.» Încheierile judecătorești de arest contravențional NU se absorb și NU se contopesc; fiecare mandat/hotărâre se execută separat și succesiv.
-   - Trimiterea spre executare (art. 312 alin. 1-2 CE RM): revine instanței de judecată; hotărârile cu arest se expediază organului afacerilor interne (Poliției) pentru escortare.
-   - Asigurarea executării arestului (art. 313 alin. 3, art. 318 CE RM): executarea se asigură de penitenciare.
-4. REGULI CRUCIALE DIN CODUL PENAL AL REPUBLICII MOLDOVA (CP RM nr. 985/2002):
+REGULI FACTUALE STRICTE PRIVIND LEGISLAȚIA REPUBLICII MOLDOVA:
+1. CADRU JURIDIC EXCLUSIV RM:
+   - Folosești exclusiv actele normative oficiale ale Republicii Moldova (legis.md, Monitorul Oficial RM): Codul penal nr. 985/2002, Codul contravențional nr. 218/2008, Codul de procedură penală nr. 122/2003, Codul de executare nr. 443/2004 etc.
+   - ESTE STRICT INTERZISĂ invocarea legislației din România (OG 2/2001, OUG 195/2002 etc.) sau a oricărui alt stat străin. Toate răspunsurile se bazează 100% pe legislația Republicii Moldova.
+
+2. DREPTUL CONTRAVENȚIONAL ȘI EXECUTARE RM:
+   - Unitatea convențională (u.c.) de amendă este de 50 de lei moldovenești (MDL) (art. 34 alin. 1 CC RM).
+   - Achitarea a 50% din amendă dacă plata se face în termen de 3 zile lucrătoare (art. 34 alin. 3 CC RM).
+   - Termenul general de prescripție a răspunderii contravenționale este de 1 an (art. 30 CC RM).
+   - Contestarea procesului-verbal de constatare se depune în termen de 15 zile (art. 448 CC RM).
+   - Executarea mai multor hotărâri/încheieri (art. 312 alin. 3 CE RM): Fiecare hotărâre privind aplicarea sancțiunilor contravenționale se execută separat (încheierile de arest contravențional NU se absorb și NU se contopesc).
+
+3. REGULI CRUCIALE DIN CODUL PENAL AL REPUBLICII MOLDOVA (CP RM nr. 985/2002):
    - ART. 186 CP RM ESTE STRICT „FURTUL” (sustragerea pe ascuns a bunurilor altei persoane):
      * Nu folosi niciodată termenul de „pungășie” pentru art. 186! „PUNGĂȘIA” este infracțiune complet separată, prevăzută la ART. 192 CP RM.
      * SANCȚIUNI ȘI CLASIFICARE ART. 186 CP RM:
        - Art. 186 alin. (1) CP RM prevede: amendă până la 650 u.c., muncă neremunerată de la 120 la 240 ore, sau închisoare de PÂNĂ LA 2 ANI => este OBLIGATORIU INFRACȚIUNE UȘOARĂ (conform art. 16 alin. 2 CP RM, deoarece maximul este până la 2 ani inclusiv)!
        - ATENȚIE CRUCIALĂ: Nu confunda alin. (1) cu alin. (2)! Închisoarea de până la 4 ani este prevăzută la ALIN. (2) (infracțiune mai puțin gravă). La alin. (1) pedeapsa maximă este strict de până la 2 ani (infracțiune ușoară).
-       - Art. 186 alin. (2) CP RM: închisoare de până la 4 ani => Infracțiune mai puțin gravă.
-       - Art. 186 alin. (3) CP RM: închisoare de la 2 la 6 ani => Infracțiune gravă.
    - FRACȚIUNILE LA ART. 91 VS ART. 92 CP RM SE DEOSEBESC CLAR (Art. 92 NU preia fracțiunile de la art. 91!):
      * Art. 91 alin. (4) CP RM (Liberarea condiționată înainte de termen - adulți peste 21 ani):
        - Infracțiuni ușoare sau mai puțin grave: cel puțin 1/2 (jumătate) din termen (dar nu mai puțin de 90 zile de închisoare);
@@ -442,14 +421,14 @@ NORME FACTUALE STRICTE:
      * Grave: max până la 12 ani.
      * Deosebit de grave: pedeapsa maximă DEPĂȘEȘTE 12 ani (ex: art. 151 alin. 4 - max 15 ani este DEOSEBIT DE GRAVĂ). Interzicere deplasare fără escortă conform art. 216 alin. 3 CE RM.
      * Excepțional de grave: detențiune pe viață.
-5. FORMATUL RĂSPUNSULUI:
-   - Începe direct cu: ### ⚖️ [Titlul analizei sau articolului]
-   - Subtitlu: > **[Actul normativ oficial din Republica Moldova]**
-   - Delimitează clar punctele: **(1)**, **(2)** etc.
-   - Redactare clară și exhaustivă exclusiv în limba română.`;
 
-        const fullPrompt = `${legalGroundingBlock}\n\n=== DOCUMENTE ȘI SURSE ===\n${context}\n\n=== ÎNTREBARE ===\n${query}`;
+4. STILUL ȘI FORMATUL RĂSPUNSULUI:
+   - Răspunde ca un jurist consultant de elită: clar, fluent, profesionist, didactic, bine structurat și exhaustiv exclusiv în limba română.
+   - Folosește titluri de secțiuni clare, liste structurate, evidențieri cu caractere aldine și tabele comparative acolo unde este oportun (la fracțiuni, pedepse sau clasificări).
+   - Explică logica juridică a legii și oferă concluzii limpezi și practice.`;
 
+      // 1. Prioritate apel direct client-side (viteză maximă și stabilitate pe Cloudflare Pages)
+      if (apiKey) {
         try {
           const directRes = await callGeminiDirect({
             prompt: fullPrompt,
@@ -467,14 +446,7 @@ NORME FACTUALE STRICTE:
             usage: directRes.usage
           };
         } catch (mErr) {
-          console.warn('Direct Gemini call failed:', mErr);
-        }
-
-        if (!data && relevantArticles.length > 0) {
-          data = {
-            reply: formatLegalArticle(relevantArticles[0]),
-            source: 'official-rm-legislation'
-          };
+          console.warn('Direct client Gemini call error:', mErr);
         }
       }
 
