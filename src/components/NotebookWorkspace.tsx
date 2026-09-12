@@ -420,12 +420,24 @@ NORME FACTUALE STRICTE:
    - Executarea mai multor hotărâri/încheieri (art. 312 alin. 3 CE RM): «În cazul pronunţării câtorva hotărâri privind aplicarea sancţiunilor contravenţionale referitor la una şi aceeaşi persoană, fiecare hotărâre se execută separat.» Încheierile judecătorești de arest contravențional NU se absorb și NU se contopesc; fiecare mandat/hotărâre se execută separat și succesiv.
    - Trimiterea spre executare (art. 312 alin. 1-2 CE RM): revine instanței de judecată; hotărârile cu arest se expediază organului afacerilor interne (Poliției) pentru escortare.
    - Asigurarea executării arestului (art. 313 alin. 3, art. 318 CE RM): executarea se asigură de penitenciare.
-4. CLASIFICAREA INFRACȚIUNILOR (art. 16 CP RM):
-   - Ușoare: max până la 2 ani.
-   - Mai puțin grave: max până la 5 ani.
-   - Grave: max până la 12 ani.
-   - Deosebit de grave: pedeapsa maximă DEPĂȘEȘTE 12 ani (ex: art. 151 alin. 4 - max 15 ani este DEOSEBIT DE GRAVĂ). Interzicere deplasare fără escortă conform art. 216 alin. 3 CE RM.
-   - Excepțional de grave: detențiune pe viață.
+4. REGULI CRUCIALE DIN CODUL PENAL AL REPUBLICII MOLDOVA (CP RM nr. 985/2002):
+   - ART. 186 CP RM ESTE STRICT „FURTUL” (sustragerea pe ascuns a bunurilor altei persoane).
+     * Nu folosi niciodată termenul de „pungășie” pentru art. 186!
+     * „PUNGĂȘIA” este infracțiune complet separată, prevăzută la ART. 192 CP RM (sustragerea bunurilor din buzunare, genți sau alte obiecte prezente la persoană).
+   - FRACȚIUNILE LA ART. 91 VS ART. 92 CP RM SE DEOSEBESC CLAR (Art. 92 NU preia fracțiunile de la art. 91!):
+     * Art. 91 alin. (4) CP RM (Liberarea condiționată înainte de termen - adulți peste 21 ani):
+       - Infracțiuni ușoare sau mai puțin grave: cel puțin 1/2 (jumătate) din termen (dar nu mai puțin de 90 zile de închisoare);
+       - Infracțiuni grave, deosebit de grave sau excepțional de grave: cel puțin 2/3 (două treimi).
+     * Art. 92 alin. (2) CP RM (Înlocuirea părții neexecutate a pedepsei cu o pedeapsă mai blândă):
+       - Infracțiuni ușoare sau mai puțin grave: cel puțin 1/3 (o treime) din pedeapsă (diferit de 1/2 de la art. 91!);
+       - Infracțiuni grave: cel puțin 1/2 (jumătate) din pedeapsă (diferit de 2/3 de la art. 91!);
+       - Infracțiuni deosebit de grave sau excepțional de grave: cel puțin 2/3 (două treimi).
+   - CLASIFICAREA INFRACȚIUNILOR (art. 16 CP RM):
+     * Ușoare: max până la 2 ani.
+     * Mai puțin grave: max până la 5 ani.
+     * Grave: max până la 12 ani.
+     * Deosebit de grave: pedeapsa maximă DEPĂȘEȘTE 12 ani (ex: art. 151 alin. 4 - max 15 ani este DEOSEBIT DE GRAVĂ). Interzicere deplasare fără escortă conform art. 216 alin. 3 CE RM.
+     * Excepțional de grave: detențiune pe viață.
 5. FORMATUL RĂSPUNSULUI:
    - Începe direct cu: ### ⚖️ [Titlul analizei sau articolului]
    - Subtitlu: > **[Actul normativ oficial din Republica Moldova]**
