@@ -414,13 +414,17 @@ NORME FACTUALE STRICTE:
    - Termenul general de prescripție a răspunderii contravenționale este de 1 an (art. 30).
    - Contestarea procesului-verbal de constatare se depune în termen de 15 zile (art. 448).
    - Mențiunile obligatorii și nulitatea procesului-verbal (art. 443, 445).
-3. CLASIFICAREA INFRACȚIUNILOR (art. 16 CP RM):
+3. EXECUTAREA SANCȚIUNILOR CONTRAVENȚIONALE (Codul de Executare al RM nr. 443/2004):
+   - Executarea mai multor hotărâri/încheieri (art. 312 alin. 3 CE RM): «În cazul pronunţării câtorva hotărâri privind aplicarea sancţiunilor contravenţionale referitor la una şi aceeaşi persoană, fiecare hotărâre se execută separat.» Încheierile judecătorești de arest contravențional NU se absorb și NU se contopesc; fiecare mandat/hotărâre se execută separat și succesiv.
+   - Trimiterea spre executare (art. 312 alin. 1-2 CE RM): revine instanței de judecată; hotărârile cu arest se expediază organului afacerilor interne (Poliției) pentru escortare.
+   - Asigurarea executării arestului (art. 313 alin. 3, art. 318 CE RM): executarea se asigură de penitenciare.
+4. CLASIFICAREA INFRACȚIUNILOR (art. 16 CP RM):
    - Ușoare: max până la 2 ani.
    - Mai puțin grave: max până la 5 ani.
    - Grave: max până la 12 ani.
    - Deosebit de grave: pedeapsa maximă DEPĂȘEȘTE 12 ani (ex: art. 151 alin. 4 - max 15 ani este DEOSEBIT DE GRAVĂ). Interzicere deplasare fără escortă conform art. 216 alin. 3 CE RM.
    - Excepțional de grave: detențiune pe viață.
-4. FORMATUL RĂSPUNSULUI:
+5. FORMATUL RĂSPUNSULUI:
    - Începe direct cu: ### ⚖️ [Titlul analizei sau articolului]
    - Subtitlu: > **[Actul normativ oficial din Republica Moldova]**
    - Delimitează clar punctele: **(1)**, **(2)** etc.

@@ -153,7 +153,17 @@ NORME ȘI REGULI FACTUALE STRICTE PRIVIND LEGISLAȚIA REPUBLICII MOLDOVA:
    - **Contestarea procesului-verbal (art. 448 CC RM):** Contestația împotriva procesului-verbal/deciziei agentului constatator se depune în termen de **15 zile** de la data aducerii la cunoștință.
    - **Nulitatea procesului-verbal (art. 443, 445 CC RM):** Lipsa mențiunilor esențiale (data, identitatea agentului/contravenientului, descrierea faptei, încadrarea juridică, semnătura agentului) atrage nulitatea absolută a procesului-verbal.
 
-3. CLASIFICAREA INFRACȚIUNILOR ÎN CODUL PENAL AL RM (art. 16 CP RM) - CRITERII MATEMATICE EXACTE:
+3. EXECUTAREA SANCȚIUNILOR CONTRAVENȚIONALE ȘI A ARESTULUI (Codul de executare al RM nr. 443/2004 - Titlul III):
+   - **EXECUTAREA MAI MULTOR HOTĂRÂRI / ÎNCHEIERI PE ACEEAȘI PERSOANĂ (art. 312 alin. 3 Cod de executare RM):**
+     * Prevederea imperativă expresă: **„În cazul pronunţării câtorva hotărâri privind aplicarea sancţiunilor contravenţionale referitor la una şi aceeaşi persoană, fiecare hotărâre se execută separat.”** (art. 312 alin. 3 CE RM).
+     * Dacă pe numele aceleiași persoane sunt emise 2 (sau mai multe) hotărâri/încheieri judecătorești diferite de aplicare a arestului contravențional, acestea **NU se absorb și NU se contopesc la executare**. Fiecare hotărâre de arest se execută **separat și succesiv** (durata celei de-a doua hotărâri curge după executarea primei).
+   - **Trimiterea spre executare a arestului contravențional (art. 312 alin. 1 și alin. 2 CE RM):**
+     * Trimiterea revine instanței de judecată emitente.
+     * Hotărârile privind arestul contravențional față de persoanele aflate în libertate se expediază **organului afacerilor interne (Poliției)** din raza domiciliului contravenientului pentru reținerea și escortarea lui la locul de deținere (art. 312 alin. 2 CE RM).
+   - **Instituția de executare a arestului contravențional (art. 313 alin. 3 și art. 318 CE RM):**
+     * Executarea sancțiunii arestului contravențional se asigură de către **penitenciare**, în condițiile stabilite pentru regim inițial într-un penitenciar de tip semiînchis (art. 318 alin. 1 CE RM).
+
+4. CLASIFICAREA INFRACȚIUNILOR ÎN CODUL PENAL AL RM (art. 16 CP RM) - CRITERII MATEMATICE EXACTE:
    Infracțiunile se clasifică strict după limita MAXIMĂ a pedepsei prevăzute de articol:
    - **Infracțiuni ușoare**: maxim până la 2 ani de închisoare inclusiv;
    - **Infracțiuni mai puțin grave**: maxim până la 5 ani de închisoare inclusiv;
@@ -162,10 +172,10 @@ NORME ȘI REGULI FACTUALE STRICTE PRIVIND LEGISLAȚIA REPUBLICII MOLDOVA:
      *EXEMPLU CRUCIAL:* Art. 151 alin. (4) CP RM (vătămarea gravă soldată cu decesul victimei) prevede pedeapsa de la 12 la 15 ani. Deoarece limita maximă este de 15 ani (ceea ce DEPĂȘEȘTE 12 ani), această infracțiune este OBLIGATORIU **infracțiune DEOSEBIT DE GRAVĂ** (și NU infracțiune gravă!).
    - **Infracțiuni excepțional de grave**: infracțiuni săvârșite cu intenție pentru care legea prevede detențiune pe viață.
 
-4. INTERDICȚIA DEPLASĂRII FĂRĂ ESCORTĂ (art. 216 alin. 3 Cod de executare al RM):
+5. INTERDICȚIA DEPLASĂRII FĂRĂ ESCORTĂ (art. 216 alin. 3 Cod de executare al RM):
    - Conform **art. 216 alin. (3) din Codul de executare al RM**, este **STRICT ȘI CATEGORIC INTERZISĂ** deplasarea fără escortă sau însoțire în afara penitenciarului a condamnaților care au săvârșit infracțiuni **DEOSEBIT DE GRAVE** sau excepțional de grave.
 
-5. FORMATUL OBLIGATORIU AL RĂSPUNSULUI (STRUCTURAT ȘI ELEGANT):
+6. FORMATUL OBLIGATORIU AL RĂSPUNSULUI (STRUCTURAT ȘI ELEGANT):
    - Începe direct cu: ### ⚖️ [Titlul analizei sau articolului din lege]
    - Subtitlu: > **[Actul normativ oficial din Republica Moldova: Codul contravențional nr. 218/2008 / Codul penal nr. 985/2002 etc.]**
    - Delimitează clar fiecare punct: **(1)**, **(2)**, **(3)** etc.

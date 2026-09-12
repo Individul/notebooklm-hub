@@ -161,7 +161,28 @@ export function findAllRelevantArticles(prompt: string): LegalArticle[] {
     }
   }
 
-  // 5. Cross-reference: Deplasare fără escortă / regim (Art. 216 CE)
+  // 5. Cross-reference: Executarea sancțiunilor contravenționale / a arestului contravențional / mai multe hotărâri sau încheieri (Art. 311, 312, 313, 318 CE RM + Art. 38 CC RM)
+  if (
+    (norm.includes('executare') || norm.includes('executa') || norm.includes('punere in executare')) &&
+    (norm.includes('arest') || norm.includes('contravent') || norm.includes('incheier') || norm.includes('hotarar') || norm.includes('sanctiun') || norm.includes('persoan') || norm.includes('separat'))
+  ) {
+    const ce312 = articles.find(a => a.abbr === 'CE' && a.number === '312');
+    if (ce312 && !results.some(r => r.abbr === 'CE' && r.number === '312')) results.push(ce312);
+
+    const ce318 = articles.find(a => a.abbr === 'CE' && a.number === '318');
+    if (ce318 && !results.some(r => r.abbr === 'CE' && r.number === '318')) results.push(ce318);
+
+    const ce311 = articles.find(a => a.abbr === 'CE' && a.number === '311');
+    if (ce311 && !results.some(r => r.abbr === 'CE' && r.number === '311')) results.push(ce311);
+
+    const ce313 = articles.find(a => a.abbr === 'CE' && a.number === '313');
+    if (ce313 && !results.some(r => r.abbr === 'CE' && r.number === '313')) results.push(ce313);
+
+    const cc38 = articles.find(a => a.abbr === 'CC' && a.number === '38');
+    if (cc38 && !results.some(r => r.abbr === 'CC' && r.number === '38')) results.push(cc38);
+  }
+
+  // 6. Cross-reference: Deplasare fără escortă / regim (Art. 216 CE)
   if (norm.includes('escorta') || norm.includes('fara escorta') || norm.includes('insoțire') || norm.includes('insoitire')) {
     const ce216 = articles.find(a => a.abbr === 'CE' && a.number === '216');
     if (ce216 && !results.some(r => r.abbr === 'CE' && r.number === '216')) {
@@ -169,7 +190,7 @@ export function findAllRelevantArticles(prompt: string): LegalArticle[] {
     }
   }
 
-  // 6. Cross-reference: Clasificarea infracțiunilor (Art. 16 CP)
+  // 7. Cross-reference: Clasificarea infracțiunilor (Art. 16 CP)
   // Needed whenever an offense penalty, escort, classification, or early release is questioned
   if (
     norm.includes('clasific') || 
@@ -185,7 +206,7 @@ export function findAllRelevantArticles(prompt: string): LegalArticle[] {
     }
   }
 
-  // 7. Cross-reference: Liberare condiționată (Art. 91 CP + Art. 266-267 CE)
+  // 8. Cross-reference: Liberare condiționată (Art. 91 CP + Art. 266-267 CE)
   if (norm.includes('liberare conditionata') || norm.includes('art. 91') || norm.includes('articolul 91')) {
     const cp91 = articles.find(a => a.abbr === 'CP' && a.number === '91');
     if (cp91 && !results.some(r => r.abbr === 'CP' && r.number === '91')) results.push(cp91);
@@ -193,10 +214,21 @@ export function findAllRelevantArticles(prompt: string): LegalArticle[] {
     if (ce266 && !results.some(r => r.abbr === 'CE' && r.number === '266')) results.push(ce266);
   }
 
-  // 5. Cross-reference: Deținerea separată (Art. 205 CE)
+  // 9. Cross-reference: Deținerea separată (Art. 205 CE)
   if (norm.includes('separat') || norm.includes('detinere separata') || norm.includes('art. 205') || norm.includes('articolul 205')) {
     const ce205 = articles.find(a => a.abbr === 'CE' && a.number === '205');
     if (ce205 && !results.some(r => r.abbr === 'CE' && r.number === '205')) results.push(ce205);
+  }
+
+  // 10. Automatic semantic keyword discovery fallback if few or no articles matched
+  if (results.length < 3) {
+    const keywordMatches = searchArticlesByKeywords(prompt, 5);
+    for (const km of keywordMatches) {
+      if (!results.some(r => r.abbr === km.abbr && r.number === km.number)) {
+        results.push(km);
+      }
+      if (results.length >= 4) break;
+    }
   }
 
   return results;
@@ -217,9 +249,26 @@ export function searchArticlesByKeywords(query: string, maxResults: number = 3):
     let score = 0;
 
     for (const w of words) {
-      if (normTitle.includes(w)) score += 10;
-      if (normText.includes(w)) score += 1;
+      if (normTitle.includes(w)) score += 12;
+      if (normText.includes(w)) {
+        score += 2;
+        // bonus if multiple occurrences
+        const count = (normText.match(new RegExp('\\b' + w, 'g')) || []).length;
+        score += Math.min(count, 5);
+      }
     }
+
+    // Key phrase bonus
+    if (normQuery.includes('arest contraventional') && (normText.includes('arest') && normText.includes('contravent'))) {
+      score += 10;
+    }
+    if (normQuery.includes('incheieri') && normText.includes('hotarari')) {
+      score += 5;
+    }
+    if (normQuery.includes('aceasi persoana') && normText.includes('aceeasi persoana')) {
+      score += 15;
+    }
+
     return { art, score };
   });
 

@@ -61,12 +61,13 @@ export const INITIAL_NOTEBOOKS: Notebook[] = [
         id: 's-ce-rm', 
         title: 'Codul de Executare al Republicii Moldova (Legea nr. 443/2004, actualizat)', 
         type: 'pdf',
-        content: 'Codul de Executare al Republicii Moldova (Legea nr. 443/2004): Titlul III - Executarea sancțiunilor contravenționale. Reglementează punerea în executare a deciziilor și hotărârilor judecătorești pe cauze contravenționale: procedura de executare silită a amenzii contravenționale, a muncii neremunerate în folosul comunității, a arestului contravențional și a sancțiunilor complementare (privarea de dreptul de a conduce vehicule sau de a deține anumite funcții), competența executorului judecătoresc și a organelor de executare abilitate din Republica Moldova.'
+        content: 'Codul de Executare al Republicii Moldova (Legea nr. 443/2004): Titlul III - Executarea sancțiunilor contravenționale (art. 311-321). Articolul 312 (Trimiterea hotărârii spre executare): alin. (1) Trimiterea spre executare a hotărârilor privind aplicarea sancțiunii contravenționale revine instanței de judecată sau persoanei cu funcție de răspundere care a adoptat hotărârea; alin. (2) Hotărârile judecătorești privind aplicarea sancțiunii arestului contravențional față de persoanele care nu se află sub arest se expediază organului afacerilor interne (Poliției) pentru escortarea la locul de deținere cel mai apropiat; alin. (3) «În cazul pronunţării câtorva hotărâri privind aplicarea sancţiunilor contravenţionale referitor la una şi aceeaşi persoană, fiecare hotărâre se execută separat.» Încheierile/mandatele de arest contravențional diferite nu se contopesc și nu se absorb, ci se execută separat și succesiv. Articolul 313 alin. (3) și Articolul 318: Executarea sancțiunii arestului contravențional se asigură de către penitenciare.'
       }
     ],
-    tags: ['Drept Contravențional', 'Codul Contravențional', 'Codul de Executare', 'Legislație RM', 'Procedură Contravențională', 'Executarea Sancțiunilor'],
+    tags: ['Drept Contravențional', 'Codul Contravențional', 'Codul de Executare', 'Legislație RM', 'Procedură Contravențională', 'Executarea Sancțiunilor', 'Art. 312 CE'],
     audioOverviewStatus: 'generated',
     keyQuestions: [
+      'Cum se pun în executare 2 sau mai multe hotărâri/încheieri cu arest contravențional pe aceeași persoană (art. 312 alin. 3 Cod de executare RM - executare separată)?',
       'Care sunt cerințele obligatorii de întocmire a procesului-verbal cu privire la contravenție (art. 443 CC RM) și când intervine nulitatea absolută?',
       'Care este termenul de prescripție a răspunderii contravenționale conform art. 30 Cod contravențional (1 an)?',
       'Cum și în ce termen se contestă decizia sau procesul-verbal emis de agentul constatator (termen de 15 zile conform art. 448 CC RM)?',
@@ -257,11 +258,11 @@ export function getStoredNotebooks(): Notebook[] {
         }
         modified = true;
       } else if (contraventionalIdx !== -1 && latestContraventional) {
-        // Enforce strictly the 2 requested official sources: Codul Contravențional & Codul de Executare
+        // Enforce strictly the 2 requested official sources: Codul Contravențional & Codul de Executare (cu Art. 312 integrat)
         const curSources = parsed[contraventionalIdx].sources || [];
         const isExactTwo = curSources.length === 2 && 
           curSources.some((s: { id: string }) => s.id === 's-cc-rm') && 
-          curSources.some((s: { id: string }) => s.id === 's-ce-rm');
+          curSources.some((s: { id: string; content?: string }) => s.id === 's-ce-rm' && s.content?.includes('Articolul 312'));
 
         if (!isExactTwo) {
           parsed[contraventionalIdx].sources = latestContraventional.sources;
