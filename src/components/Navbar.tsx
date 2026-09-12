@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import { 
   Sparkles, 
-  Plus, 
   ExternalLink, 
   Download, 
   BookOpen, 
@@ -15,7 +14,7 @@ import {
 } from 'lucide-react';
 
 interface NavbarProps {
-  onAddNew: () => void;
+  onAddNew?: () => void;
   onOpenCopilot: () => void;
   onOpenImportExport: () => void;
   onOpenAuth: () => void;
@@ -26,7 +25,6 @@ interface NavbarProps {
 }
 
 export function Navbar({ 
-  onAddNew, 
   onOpenCopilot, 
   onOpenImportExport, 
   onOpenAuth, 
@@ -146,15 +144,6 @@ export function Navbar({
               </div>
             )}
           </div>
-
-          {/* Add Notebook Button */}
-          <button
-            onClick={onAddNew}
-            className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-2xs transition hover:bg-blue-500 cursor-pointer"
-          >
-            <Plus className="h-3.5 w-3.5" />
-            <span>Adaugă Caiet</span>
-          </button>
 
         </div>
 
