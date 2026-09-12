@@ -388,20 +388,12 @@ export function NotebookWorkspace({
       }
 
       if (!data && apiKey) {
-        const isContraventionContext = notebook.id === 'seed-contraventional-rm' || notebook.title.toLowerCase().includes('contraven');
-        const allowedAbbrs: ('CP' | 'CE' | 'CPP' | 'CC')[] | undefined = isContraventionContext ? ['CC', 'CE'] : undefined;
-        const relevantArticles = findAllRelevantArticles(query, allowedAbbrs);
+        const relevantArticles = findAllRelevantArticles(query);
         let legalGroundingBlock = '';
         if (relevantArticles.length > 0) {
           legalGroundingBlock = `\n\n=== TEXTE OFICIALE DIN LEGISLAȚIA REPUBLICII MOLDOVA ===\n` +
             relevantArticles.map(a => formatLegalArticle(a)).join('\n\n---\n\n');
         }
-
-        const contraventionConstraint = isContraventionContext ? `
-6. CONSTRÂNGERE STRICTĂ DE DOMENIU (CAIET CONTRAVENȚIONAL):
-   - Răspunsul tău trebuie să fie STRICT limitat la sursele acestui caiet: Codul contravențional nr. 218/2008 și Codul de executare nr. 443/2004.
-   - ESTE CATEGORIC ȘI STRICT INTERZISĂ menționarea, invocarea sau trimiterea la Codul de procedură penală (CPP) ori la proceduri penale auxiliare (cum ar fi „darea în consemn” sau mandate penale). Acestea sunt considerate erori și halucinații din afara caietului.
-   - Răspunde strict și direct la întrebare (ex: executarea separată și succesivă a mandatelor/încheierilor de arest contravențional conform art. 312 alin. 3 CE RM), fără digresiuni legislative necerute.` : '';
 
         const systemPromptRM = `Ești un asistent juridic de elită specializat exclusiv în legislația oficială a REPUBLICII MOLDOVA în NotebookLM.
 
@@ -409,12 +401,13 @@ NORME FACTUALE STRICTE:
 1. CADRU JURIDIC EXCLUSIV ȘI SUVERAN RM:
    - Folosești exclusiv actele normative oficiale ale Republicii Moldova (Parlamentul RM, Monitorul Oficial al RM, legis.md):
      * Codul contravențional al Republicii Moldova nr. 218/2008 (cu modificările la zi)
+     * Codul penal al Republicii Moldova nr. 985/2002
      * Codul de executare al RM nr. 443/2004
-     ${!isContraventionContext ? '* Codul penal al Republicii Moldova nr. 985/2002\n     * Codul de procedură penală al RM nr. 122/2003' : ''}
+     * Codul de procedură penală al RM nr. 122/2003
      * Regulamentul circulației rutiere al RM (HG nr. 357/2009)
      * Legea nr. 131/2007 privind siguranța traficului rutier din RM
      * Legea nr. 320/2012 cu privire la activitatea Poliției și statutul polițistului
-   - ESTE STRICT ȘI CATEGORIC INTERZISĂ invocarea legislației din România (OG 2/2001, OUG 195/2002 etc.) sau a oricărui alt stat străin. Toate răspunsurile se bazează 100% pe legislația Republicii Moldova.${contraventionConstraint}
+   - ESTE STRICT ȘI CATEGORIC INTERZISĂ invocarea legislației din România (OG 2/2001, OUG 195/2002 etc.) sau a oricărui alt stat străin. Toate răspunsurile se bazează 100% pe legislația Republicii Moldova.
 2. DREPTUL CONTRAVENȚIONAL RM (Codul Contravențional nr. 218/2008):
    - Unitatea convențională (u.c.) de amendă este de 50 de lei moldovenești (MDL) (art. 34 alin. 1).
    - Achitarea a 50% din amendă dacă plata se face în termen de 3 zile lucrătoare (art. 34 alin. 3).
@@ -423,7 +416,7 @@ NORME FACTUALE STRICTE:
    - Mențiunile obligatorii și nulitatea procesului-verbal (art. 443, 445).
 3. EXECUTAREA SANCȚIUNILOR CONTRAVENȚIONALE (Codul de Executare al RM nr. 443/2004):
    - Executarea mai multor hotărâri/încheieri (art. 312 alin. 3 CE RM): «În cazul pronunţării câtorva hotărâri privind aplicarea sancţiunilor contravenţionale referitor la una şi aceeaşi persoană, fiecare hotărâre se execută separat.» Încheierile judecătorești de arest contravențional NU se absorb și NU se contopesc; fiecare mandat/hotărâre se execută separat și succesiv.
-   - Trimiterea spre executare (art. 312 alin. 1-2 CE RM): revine instanței de judecată; hotărârile cu arest se expediază organului afacerilor interne (Poliției) pentru escortare la locul de deținere.
+   - Trimiterea spre executare (art. 312 alin. 1-2 CE RM): revine instanței de judecată; hotărârile cu arest se expediază organului afacerilor interne (Poliției) pentru escortare.
    - Asigurarea executării arestului (art. 313 alin. 3, art. 318 CE RM): executarea se asigură de penitenciare.
 4. CLASIFICAREA INFRACȚIUNILOR (art. 16 CP RM):
    - Ușoare: max până la 2 ani.
