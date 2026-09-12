@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { recordExpense } from './expenseTracker';
 import { cleanDisplayReply } from './cleaner';
@@ -51,12 +51,11 @@ export async function getAvailableModels(apiKey: string): Promise<string[]> {
 
   // Fallback defaults
   return [
-    'models/gemini-2.0-flash',
-    'models/gemini-1.5-flash',
-    'models/gemini-1.5-flash-latest',
-    'models/gemini-2.5-flash',
-    'models/gemini-1.5-pro',
-    'models/gemini-pro'
+    'models/gemini-3.6-flash',
+    'models/gemini-flash-latest',
+    'models/gemini-3.5-flash',
+    'models/gemini-2.5-flash-lite',
+    'models/gemini-2.5-pro'
   ];
 }
 
@@ -73,15 +72,13 @@ export function pickBestModel(available: string[], preferred?: string): string[]
 
   // Priority order for general usage
   const priorities = [
-    'gemini-2.0-flash',
-    'gemini-1.5-flash',
-    'gemini-1.5-flash-latest',
+    'gemini-3.6-flash',
+    'gemini-flash-latest',
+    'gemini-3.5-flash',
+    'gemini-2.5-flash-lite',
+    'gemini-2.5-pro',
     'gemini-2.5-flash',
-    'gemini-1.5-flash-8b',
-    'gemini-2.0-flash-lite',
-    'gemini-1.5-pro',
-    'gemini-1.5-pro-latest',
-    'gemini-pro'
+    'gemini-pro-latest'
   ];
 
   for (const prio of priorities) {
