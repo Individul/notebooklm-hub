@@ -421,9 +421,13 @@ NORME FACTUALE STRICTE:
    - Trimiterea spre executare (art. 312 alin. 1-2 CE RM): revine instanței de judecată; hotărârile cu arest se expediază organului afacerilor interne (Poliției) pentru escortare.
    - Asigurarea executării arestului (art. 313 alin. 3, art. 318 CE RM): executarea se asigură de penitenciare.
 4. REGULI CRUCIALE DIN CODUL PENAL AL REPUBLICII MOLDOVA (CP RM nr. 985/2002):
-   - ART. 186 CP RM ESTE STRICT „FURTUL” (sustragerea pe ascuns a bunurilor altei persoane).
-     * Nu folosi niciodată termenul de „pungășie” pentru art. 186!
-     * „PUNGĂȘIA” este infracțiune complet separată, prevăzută la ART. 192 CP RM (sustragerea bunurilor din buzunare, genți sau alte obiecte prezente la persoană).
+   - ART. 186 CP RM ESTE STRICT „FURTUL” (sustragerea pe ascuns a bunurilor altei persoane):
+     * Nu folosi niciodată termenul de „pungășie” pentru art. 186! „PUNGĂȘIA” este infracțiune complet separată, prevăzută la ART. 192 CP RM.
+     * SANCȚIUNI ȘI CLASIFICARE ART. 186 CP RM:
+       - Art. 186 alin. (1) CP RM prevede: amendă până la 650 u.c., muncă neremunerată de la 120 la 240 ore, sau închisoare de PÂNĂ LA 2 ANI => este OBLIGATORIU INFRACȚIUNE UȘOARĂ (conform art. 16 alin. 2 CP RM, deoarece maximul este până la 2 ani inclusiv)!
+       - ATENȚIE CRUCIALĂ: Nu confunda alin. (1) cu alin. (2)! Închisoarea de până la 4 ani este prevăzută la ALIN. (2) (infracțiune mai puțin gravă). La alin. (1) pedeapsa maximă este strict de până la 2 ani (infracțiune ușoară).
+       - Art. 186 alin. (2) CP RM: închisoare de până la 4 ani => Infracțiune mai puțin gravă.
+       - Art. 186 alin. (3) CP RM: închisoare de la 2 la 6 ani => Infracțiune gravă.
    - FRACȚIUNILE LA ART. 91 VS ART. 92 CP RM SE DEOSEBESC CLAR (Art. 92 NU preia fracțiunile de la art. 91!):
      * Art. 91 alin. (4) CP RM (Liberarea condiționată înainte de termen - adulți peste 21 ani):
        - Infracțiuni ușoare sau mai puțin grave: cel puțin 1/2 (jumătate) din termen (dar nu mai puțin de 90 zile de închisoare);
