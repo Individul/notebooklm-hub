@@ -206,15 +206,45 @@ export function findAllRelevantArticles(prompt: string): LegalArticle[] {
     }
   }
 
-  // 8. Cross-reference: Liberare condiționată (Art. 91 CP + Art. 266-267 CE)
-  if (norm.includes('liberare conditionata') || norm.includes('art. 91') || norm.includes('articolul 91')) {
+  // 8. Cross-reference: Liberare condiționată (Art. 91 CP) & Înlocuirea pedepsei cu una mai blândă (Art. 92 CP)
+  if (
+    norm.includes('liberare conditionata') || 
+    norm.includes('inlocuire') || 
+    norm.includes('pedeapsa mai blanda') || 
+    norm.includes('fractiun') || 
+    norm.includes('art 91') || 
+    norm.includes('articol 91') || 
+    norm.includes('art 92') || 
+    norm.includes('articol 92')
+  ) {
     const cp91 = articles.find(a => a.abbr === 'CP' && a.number === '91');
     if (cp91 && !results.some(r => r.abbr === 'CP' && r.number === '91')) results.push(cp91);
+
+    const cp92 = articles.find(a => a.abbr === 'CP' && a.number === '92');
+    if (cp92 && !results.some(r => r.abbr === 'CP' && r.number === '92')) results.push(cp92);
+
     const ce266 = articles.find(a => a.abbr === 'CE' && a.number === '266');
     if (ce266 && !results.some(r => r.abbr === 'CE' && r.number === '266')) results.push(ce266);
   }
 
-  // 9. Cross-reference: Deținerea separată (Art. 205 CE)
+  // 9. Cross-reference: Furtul (Art. 186 CP) vs Pungășia (Art. 192 CP)
+  if (
+    norm.includes('furt') || 
+    norm.includes('pungas') || 
+    norm.includes('sustragere') || 
+    norm.includes('art 186') || 
+    norm.includes('articol 186') || 
+    norm.includes('art 192') || 
+    norm.includes('articol 192')
+  ) {
+    const cp186 = articles.find(a => a.abbr === 'CP' && a.number === '186');
+    if (cp186 && !results.some(r => r.abbr === 'CP' && r.number === '186')) results.push(cp186);
+
+    const cp192 = articles.find(a => a.abbr === 'CP' && a.number === '192');
+    if (cp192 && !results.some(r => r.abbr === 'CP' && r.number === '192')) results.push(cp192);
+  }
+
+  // 10. Cross-reference: Deținerea separată (Art. 205 CE)
   if (norm.includes('separat') || norm.includes('detinere separata') || norm.includes('art. 205') || norm.includes('articolul 205')) {
     const ce205 = articles.find(a => a.abbr === 'CE' && a.number === '205');
     if (ce205 && !results.some(r => r.abbr === 'CE' && r.number === '205')) results.push(ce205);

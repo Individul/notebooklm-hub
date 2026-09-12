@@ -19,6 +19,7 @@ import { FormattedMessage } from './FormattedMessage';
 import { cleanDisplayReply } from '@/lib/cleaner';
 import { recordExpense } from '@/lib/expenseTracker';
 import { callGeminiDirect } from '@/lib/geminiDirect';
+import { findAllRelevantArticles } from '@/lib/legislation/search';
 
 interface GeminiCopilotDrawerProps {
   isOpen: boolean;
@@ -146,13 +147,22 @@ REGULI FACTUALE STRICTE PRIVIND LEGISLAȚIA REPUBLICII MOLDOVA:
 
 Răspunde clar, structurat, bine formatat și exclusiv în limba română.`;
 
-    const fullPrompt = `${contextStr ? `=== CONTEXTUL NOTEBOOK-ULUI SELECTAT ===\n${contextStr}\n\n` : ''}=== ÎNTREBAREA SAU CERINȚA UTILIZATORULUI ===\n${textToSend}`;
+    const relevantArticles = findAllRelevantArticles(textToSend);
+    let legalGroundingBlock = '';
+    if (relevantArticles.length > 0) {
+      legalGroundingBlock = `=== CADRU NORMATIV OFICIAL DIN REPUBLICA MOLDOVA (OBLIGATORIU ȘI FACTUAL) ===\n` +
+        relevantArticles.map(a => `[${a.code} - Art. ${a.number}: ${a.title}]\n${a.text}`).join('\n\n---\n\n') + '\n\n';
+    }
+
+    const fullPrompt = `${legalGroundingBlock}${contextStr ? `=== CONTEXTUL NOTEBOOK-ULUI SELECTAT ===\n${contextStr}\n\n` : ''}=== ÎNTREBAREA SAU CERINȚA UTILIZATORULUI ===\n${textToSend}`;
 
     try {
       const res = await callGeminiDirect({
         prompt: fullPrompt,
         systemInstruction: systemInstructionText,
-        apiKey: storedKey
+        apiKey: storedKey,
+        temperature: 0.05,
+        topP: 0.8
       });
 
       setMessages((prev) => [
